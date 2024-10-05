@@ -20,11 +20,18 @@ I'm a student at the HU University of Applied Sciences Utrecht, studying cyberse
 
 ## GitHub Stats
 
-![Damian's GitHub stats](https://github-readme-stats.vercel.app/api?username=Damianko135&show_icons=true&theme=dark)
+<!--START_SECTION:github_stats-->
+<!--END_SECTION:github_stats-->
 
 ## Top Languages
 
-![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=Damianko135&layout=compact&theme=dark)
+<!--START_SECTION:top_languages-->
+<!--END_SECTION:top_languages-->
+
+## Recent Blog Posts
+
+<!--START_SECTION:blog-->
+<!--END_SECTION:blog-->
 
 ## Skills
 
@@ -32,11 +39,6 @@ I'm a student at the HU University of Applied Sciences Utrecht, studying cyberse
 - Docker for hosting
 - VMware
 - Windows management
-
-## Recent Blog Posts
-
-<!--START_SECTION:blog-->
-<!--END_SECTION:blog-->
 
 ### Connect with me
 
