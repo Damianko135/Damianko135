@@ -2,14 +2,44 @@ name: Update README
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs every day
-  workflow_dispatch:
+    # Run at 12am every day
+    - cron: "0 0 * * *"
 
 jobs:
   update-readme:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: jamesgeorge007/github-activity-readme@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Fetch recent activity
+      - name: Update Recent GitHub Activity
+        uses: jamesgeorge007/github-activity-readme@master
+        with:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Add GitHub Stats
+      - name: Update GitHub Stats
+        run: |
+          echo "Updating GitHub Stats"
+          # Call your script or API to get stats, then update the <!--START_SECTION:github_stats-->
+
+      # Add Top Languages
+      - name: Update Top Languages
+        run: |
+          echo "Updating Top Languages"
+          # Call your script or API to get top languages, then update the <!--START_SECTION:top_languages-->
+
+      # Add Blog Posts
+      - name: Update Blog Posts
+        run: |
+          echo "Updating Blog Posts"
+          # Call your script to fetch from an RSS feed and update the <!--START_SECTION:blog-->
+
+      # Commit the changes to the README.md
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md
+          git commit -m "Updated README with latest activity, stats, and blog posts"
+          git push
