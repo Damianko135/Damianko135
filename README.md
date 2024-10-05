@@ -8,22 +8,18 @@ I'm a student at the HU University of Applied Sciences Utrecht, studying cyberse
 - Getting better at Linux and penetration testing
 
 ## Recent GitHub Activity
-<!-- START_SECTION:activity -->
-<!-- This section automatically updates with your recent GitHub activity -->
-<!-- END_SECTION:activity -->
+<!--START_SECTION:activity-->
+<!--END_SECTION:activity-->
 
 ## My Latest Projects
-<!-- START_SECTION:repositories -->
-<!-- This section automatically updates with your latest repositories -->
-<!-- END_SECTION:repositories -->
+<!--START_SECTION:repositories-->
+<!--END_SECTION:repositories-->
 
 ## Skills
-<!-- START_SECTION:skills -->
 - Linux (getting better every day!)
 - Docker for hosting
 - VMware
 - Windows management
-<!-- END_SECTION:skills -->
 
 ### Connect with me
 - [LinkedIn](https://www.linkedin.com/in/damian-korver/)
