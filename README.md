@@ -12,11 +12,10 @@ I'm a student at the HU University of Applied Sciences Utrecht, studying cyberse
 <!--END_SECTION:activity-->
 
 ## GitHub Stats
-![Your GitHub stats](https://github-readme-stats.vercel.app/api?username=Damianko135&show_icons=true&theme=radical)
+[![Your GitHub stats](https://github-readme-stats.vercel.app/api?username=Damianko135&show_icons=true&theme=radical)]
 
 ## GitHub Streak
-[![GitHub Streak](https://streak-stats.demolab.com?user=Damianko135&theme=dark)](https://git.io/streak-stats)
-
+[![GitHub Streak](https://streak-stats.demolab.com?user=Damianko135&theme=dark)]
 <!-- ## GitHub Contribution Graph
 ![Damian's GitHub Contribution Graph](https://activity-graph.herokuapp.com/graph?username=Damianko135&theme=github) -->
 
