@@ -12,6 +12,7 @@
 ### 👨‍🎓 About Me
 
 I'm a Cybersecurity and System Management student at HU University of Applied Sciences Utrecht. Currently in my second year and passionate about:
+
 - 🔒 Cybersecurity
 - 🖥️ System Administration
 - 🐧 Linux
@@ -39,6 +40,7 @@ I'm a Cybersecurity and System Management student at HU University of Applied Sc
 ---
 
 ### 🏆 My GitHub Trophies
+
 ![](https://github-profile-trophy.vercel.app/?username=Damianko135&theme=tokyonight&no-frame=false&no-bg=true&margin-w=4)
 
 ### 📚 Featured Repositories

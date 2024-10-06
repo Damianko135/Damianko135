@@ -2,7 +2,7 @@ name: Metrics
 
 on:
   schedule:
-    - cron: "0 0 * * *"  # Runs at 00:00 UTC every day
+    - cron: "0 0 * * *" # Runs at 00:00 UTC every day
   workflow_dispatch:
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
           plugin_languages_colors: github
           plugin_languages_details: percentage
           plugin_languages_threshold: 2%
-          
+
       - name: Generate Repository Metrics
         uses: lowlighter/metrics@latest
         with:
@@ -42,7 +42,7 @@ jobs:
           plugin_repositories_random: 5
           plugin_repositories_forks: yes
           repositories_batch: 10
-          
+
       - name: Generate Additional Metrics
         uses: lowlighter/metrics@latest
         with:
