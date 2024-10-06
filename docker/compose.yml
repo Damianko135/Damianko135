@@ -1,6 +1,6 @@
 services:
   reverse-proxy:
-    image: traefik:latest  
+    image: traefik:latest
     command:
       - "--api.dashboard=true"
       - "--providers.docker=true"
@@ -52,11 +52,11 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: 
-    - "--cleanup"
-    -  "--rolling-restart"
-    -  "--interval"
-    -  "30"
+    command:
+      - "--cleanup"
+      - "--rolling-restart"
+      - "--interval"
+      - "30"
 
   # Portainer
   # See status of the containers

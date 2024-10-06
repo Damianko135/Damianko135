@@ -23,8 +23,8 @@ I'm a student at the HU University of Applied Sciences Utrecht, studying cyberse
 <!-- ## My most used langua -->
 <!-- ![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Damianko135&theme=tokyonight) -->
 
-
 ## Skills
+
 - Linux (getting better every day!)
 - Docker for hosting
 - VMware
@@ -32,5 +32,6 @@ I'm a student at the HU University of Applied Sciences Utrecht, studying cyberse
 - Windows management
 
 ### Connect with me
+
 - [LinkedIn](https://www.linkedin.com/in/damian-korver/)
 - [GitHub](https://github.com/Damianko135/)

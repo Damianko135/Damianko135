@@ -7,7 +7,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.groeneweide.rule=Host(`groeneweide.dkorver.dk`)"
-      - "traefik.http.routers.groeneweide.entrypoints=websecure"  # Changed from web to websecure
+      - "traefik.http.routers.groeneweide.entrypoints=websecure" # Changed from web to websecure
       - "traefik.http.routers.groeneweide.tls=true"
       - "traefik.http.routers.groeneweide.tls.certresolver=lets-encrypt"
       - "traefik.http.routers.groeneweide.middlewares=secHeaders"
@@ -30,7 +30,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.random-link-generator.rule=Host(`link.dkorver.dk`)"
-      - "traefik.http.routers.random-link-generator.entrypoints=websecure"  # Changed from web to websecure
+      - "traefik.http.routers.random-link-generator.entrypoints=websecure" # Changed from web to websecure
       - "traefik.http.routers.random-link-generator.tls=true"
       - "traefik.http.routers.random-link-generator.tls.certresolver=lets-encrypt"
       - "traefik.http.routers.random-link-generator.middlewares=secHeaders"
@@ -59,7 +59,16 @@ services:
     networks:
       - backend
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u$$MYSQL_USER", "-p$$MYSQL_PASSWORD"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u$$MYSQL_USER",
+          "-p$$MYSQL_PASSWORD",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5

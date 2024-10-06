@@ -1,7 +1,7 @@
 name: Metrics
 on:
   # Schedule daily updates
-  schedule: [{cron: "0 0 * * *"}]
+  schedule: [{ cron: "0 0 * * *" }]
   # (optional) Run workflow manually
   workflow_dispatch:
   # (optional) Run workflow when pushing on master/main
@@ -9,11 +9,48 @@ on:
 jobs:
   github-metrics:
     runs-on: ubuntu-latest
-    environment: 
+    environment:
       name: production
     permissions:
       contents: write
     steps:
-      - uses: lowlighter/metrics@latest
+      - name: Most/recently used languages
+        uses: lowlighter/metrics@latest
         with:
+          filename: languages.svg
+          plugin_languages: yes
+          plugin_languages_sections: recently-used
+          plugin_languages_recent_load: 400
+          plugin_languages_recent_days: 14
+          plugin_languages_limit: 8
+          plugin_languages_other: yes
           token: ${{ secrets.README_UPDATER }}
+
+      - name: Repositories
+        uses: lowlighter/metrics@latest
+        with:
+          filename: repositories.svg
+          token: ${{ secrets.README_UPDATER }}
+          plugin_repositories: yes
+          plugin_repositories_featured: lowlighter/metrics # replace with your featured repositories
+          plugin_repositories_pinned: 6 # display up to 6 pinned repositories
+          plugin_repositories_starred: 10 # display up to 10 starred repositories
+          plugin_repositories_random: 5 # display up to 5 random repositories
+          plugin_repositories_order: featured, pinned, starred, random # display order
+          plugin_repositories_forks: yes # include forks if desired
+
+      - name: LeetCode
+        uses: lowlighter/metrics@latest
+        with:
+          filename: metrics.plugin.leetcode.svg
+          token: ${{ secrets.README_UPDATER }}
+          plugin_leetcode: yes
+          plugin_leetcode_sections: solved, skills, recent
+
+      - name: Fortune
+        uses: lowlighter/metrics@latest
+        with:
+          filename: metrics.plugin.fortune.svg
+          token: NOT_NEEDED
+          base: ""
+          plugin_fortune: yes

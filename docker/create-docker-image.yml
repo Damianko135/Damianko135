@@ -17,33 +17,32 @@ jobs:
         with:
           username: ${{ vars.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
-      
+
       - name: Lowercase the repo name
-        run: | 
+        run: |
           echo "REPO_LC=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
           echo "REPO_LC=${GITHUB_REPOSITORY,,}"
           echo "REPO_LC"
-        
-      
+
       - name: Generate semantic version
         id: semver
         run: |
           # Get the run number from the environment
           RUN_NUMBER=${GITHUB_RUN_NUMBER}
-          
+
           # Calculate major, minor, and patch based on the run number
           MAJOR=$((RUN_NUMBER / 100))        # Every 100 runs increases major
           MINOR=$(((RUN_NUMBER % 100) / 10)) # Every 10 runs increases minor
           PATCH=$((RUN_NUMBER % 10))         # Remaining runs increase patch
-          
+
           # Format the version
           VERSION="$MAJOR.$MINOR.$PATCH"
-          
+
           # Output the version for use in later steps and logging
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Calculated version: $VERSION (from run #$RUN_NUMBER)"
-      
+
       - uses: docker/build-push-action@v6
         with:
           context: .
