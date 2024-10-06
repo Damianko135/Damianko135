@@ -42,7 +42,7 @@ jobs:
       - name: LeetCode
         uses: lowlighter/metrics@latest
         with:
-          filename: metrics.plugin.leetcode.svg
+          filename: leetcode.svg
           token: ${{ secrets.README_UPDATER }}
           plugin_leetcode: yes
           plugin_leetcode_sections: solved, skills, recent
@@ -50,7 +50,7 @@ jobs:
       - name: Fortune
         uses: lowlighter/metrics@latest
         with:
-          filename: metrics.plugin.fortune.svg
+          filename: fortune.svg
           token: NOT_NEEDED
           base: ""
           plugin_fortune: yes
