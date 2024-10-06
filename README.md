@@ -2,10 +2,10 @@
 
 I'm a student at the HU University of Applied Sciences Utrecht, studying cybersecurity and system management. Currently in my second year, learning something new every day!
 
-## What I'm up to
+<!-- ## What I'm up to
 - Working on automating PC resets using WDS
 - Self-hosting websites on my OrangePi 5
-- Getting better at Linux and penetration testing
+- Getting better at Linux and penetration testing -->
 
 <p align="center"><img src="/github-metrics.svg" alt="Metrics" width="500"></p>
 <!-- ## Recent GitHub Activity -->
