@@ -8,26 +8,27 @@ I'm a student at the HU University of Applied Sciences Utrecht, studying cyberse
 - Getting better at Linux and penetration testing
 
 <p align="center"><img src="/github-metrics.svg" alt="Metrics" width="500"></p>
-<!-- ## Recent GitHub Activity
-START_SECTION:activity
-END_SECTION:activity
+<!-- ## Recent GitHub Activity -->
+<!--START_SECTION:activity-->
+<!--END_SECTION:activity-->
 
-## GitHub Stats
-[![Your GitHub stats](https://github-readme-stats.vercel.app/api?username=Damianko135&show_icons=true&theme=radical)]
+<!-- ## GitHub Stats -->
+<!-- [![Your GitHub stats](https://github-readme-stats.vercel.app/api?username=Damianko135&show_icons=true&theme=radical)] -->
 
-## GitHub Streak
-[![GitHub Streak](https://streak-stats.demolab.com?user=Damianko135&theme=dark)]
-## GitHub Contribution Graph
-![Damian's GitHub Contribution Graph](https://activity-graph.herokuapp.com/graph?username=Damianko135&theme=github)
+<!-- ## GitHub Streak -->
+<!-- [![GitHub Streak](https://streak-stats.demolab.com?user=Damianko135&theme=dark)] -->
+<!-- ## GitHub Contribution Graph
+![Damian's GitHub Contribution Graph](https://activity-graph.herokuapp.com/graph?username=Damianko135&theme=github) -->
 
-## My most used langua
-![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Damianko135&theme=tokyonight) -->
+<!-- ## My most used langua -->
+<!-- ![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Damianko135&theme=tokyonight) -->
 
 
 ## Skills
 - Linux (getting better every day!)
 - Docker for hosting
 - VMware
+- Proxmox
 - Windows management
 
 ### Connect with me
