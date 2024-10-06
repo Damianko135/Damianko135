@@ -3,7 +3,7 @@ name: Metrics
 on:
   schedule:
     - cron: "0 0 * * *"  # Runs at 00:00 UTC every day
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
   github-metrics:
@@ -24,6 +24,9 @@ jobs:
           plugin_languages_recent_days: 14
           plugin_languages_limit: 8
           plugin_languages_other: yes
+          plugin_languages_colors: github
+          plugin_languages_details: percentage
+          plugin_languages_threshold: 2%
           
       - name: Generate Repository Metrics
         uses: lowlighter/metrics@latest
@@ -34,9 +37,11 @@ jobs:
           config_order: repositories
           plugin_repositories: yes
           plugin_repositories_pinned: 6
+          plugin_repositories_featured: Damianko135/Damianko135
           plugin_repositories_starred: 10
           plugin_repositories_random: 5
           plugin_repositories_forks: yes
+          repositories_batch: 10
           
       - name: Generate Additional Metrics
         uses: lowlighter/metrics@latest
@@ -44,8 +49,14 @@ jobs:
           token: ${{ secrets.README_UPDATER }}
           filename: metrics-additional.svg
           base: ""
+          plugin_isocalendar: yes
+          plugin_isocalendar_duration: full-year
           plugin_habits: yes
           plugin_habits_from: 200
           plugin_habits_days: 14
           plugin_habits_facts: yes
           plugin_habits_charts: yes
+          plugin_achievements: yes
+          plugin_achievements_display: compact
+          plugin_achievements_threshold: B
+          # plugin_noteworthy: yes
