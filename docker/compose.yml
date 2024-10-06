@@ -1,1 +1,87 @@
+services:
+  reverse-proxy:
+    image: traefik:latest  
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.lets-encrypt.acme.email=your@email.com"
+      - "--certificatesresolvers.lets-encrypt.acme.storage=/certs/acme.json"
+      - "--certificatesresolvers.lets-encrypt.acme.tlschallenge=true"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.dkorver.dk`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=lets-encrypt"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      # Generate using htpasswd -n admin adminpwd
+      # User a .env file for the password, never hard code it in the compose file
+      # Syntax user:password
+      - "traefik.http.middlewares.auth.basicauth.users=${ADMIN_LOGIN}" # Generate this with htpasswd
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "certs:/certs"
+    restart: unless-stopped
+    networks:
+      - backend
+      - frontend
 
+  portfolio:
+    image: damianko135/portfolio:latest
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portfolio.rule=Host(`dkorver.dk`)"
+      - "traefik.http.routers.portfolio.entrypoints=websecure"
+      - "traefik.http.routers.portfolio.tls=true"
+      - "traefik.http.routers.portfolio.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.portfolio.loadbalancer.server.port=4173"
+    networks:
+      - frontend
+
+    # Keep everything up to date
+  watchtower:
+    image: containrrr/watchtower:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: 
+    - "--cleanup"
+    -  "--rolling-restart"
+    -  "--interval"
+    -  "30"
+
+  # Portainer
+  # See status of the containers
+  portainer:
+    image: portainer/portainer:latest
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.dkorver.dk`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - frontend
+
+volumes:
+  certs:
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true

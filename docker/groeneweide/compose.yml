@@ -1,0 +1,79 @@
+services:
+  groeneweide:
+    image: damianko135/groeneweide:latest
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.groeneweide.rule=Host(`groeneweide.dkorver.dk`)"
+      - "traefik.http.routers.groeneweide.entrypoints=websecure"  # Changed from web to websecure
+      - "traefik.http.routers.groeneweide.tls=true"
+      - "traefik.http.routers.groeneweide.tls.certresolver=lets-encrypt"
+      - "traefik.http.routers.groeneweide.middlewares=secHeaders"
+      - "traefik.http.services.groeneweide.loadbalancer.server.port=80"
+    networks:
+      - frontend
+    depends_on:
+      - database
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  random-link-generator:
+    image: damianko135/links:latest
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.random-link-generator.rule=Host(`link.dkorver.dk`)"
+      - "traefik.http.routers.random-link-generator.entrypoints=websecure"  # Changed from web to websecure
+      - "traefik.http.routers.random-link-generator.tls=true"
+      - "traefik.http.routers.random-link-generator.tls.certresolver=lets-encrypt"
+      - "traefik.http.routers.random-link-generator.middlewares=secHeaders"
+      - "traefik.http.services.random-link-generator.loadbalancer.server.port=80"
+    networks:
+      - frontend
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  database:
+    image: mysql:8.0
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-groeneweide}
+      MYSQL_USER: ${MYSQL_USER:-groeneweide}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD:-no}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u$$MYSQL_USER", "-p$$MYSQL_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  mysql_data:
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
