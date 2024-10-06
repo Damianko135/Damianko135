@@ -7,22 +7,22 @@ I'm a student at the HU University of Applied Sciences Utrecht, studying cyberse
 - Self-hosting websites on my OrangePi 5
 - Getting better at Linux and penetration testing
 
-## Recent GitHub Activity
-<!--START_SECTION:activity-->
-<!--END_SECTION:activity-->
+<p align="center"><img src="/github-metrics.svg" alt="Metrics" width="500"></p>
+<!-- ## Recent GitHub Activity
+START_SECTION:activity
+END_SECTION:activity
 
 ## GitHub Stats
 [![Your GitHub stats](https://github-readme-stats.vercel.app/api?username=Damianko135&show_icons=true&theme=radical)]
 
 ## GitHub Streak
 [![GitHub Streak](https://streak-stats.demolab.com?user=Damianko135&theme=dark)]
-<!-- ## GitHub Contribution Graph
-![Damian's GitHub Contribution Graph](https://activity-graph.herokuapp.com/graph?username=Damianko135&theme=github) -->
+## GitHub Contribution Graph
+![Damian's GitHub Contribution Graph](https://activity-graph.herokuapp.com/graph?username=Damianko135&theme=github)
 
 ## My most used langua
-![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Damianko135&theme=tokyonight)
+![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Damianko135&theme=tokyonight) -->
 
-<p align="center"><img src="/github-metrics.svg" alt="Metrics" width="400"></p>
 
 ## Skills
 - Linux (getting better every day!)
