@@ -1,28 +1,19 @@
-name: Update README
-
+name: Metrics
 on:
-  schedule:
-    # Runs every day at midnight
-    - cron: "0 0 * * *"
+  # Schedule daily updates
+  schedule: [{cron: "0 0 * * *"}]
+  # (optional) Run workflow manually
   workflow_dispatch:
-
+  # (optional) Run workflow when pushing on master/main
+  push: {branches: ["master", "main"]}
 jobs:
-  update-readme:
+  github-metrics:
     runs-on: ubuntu-latest
+    environment: 
+      name: production
+    permissions:
+      contents: write
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      # Configure Git
-      - name: Set up Git configuration
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      # Update Recent GitHub Activity in README
-      - name: Update GitHub Activity
-        uses: jamesgeorge007/github-activity-readme@master
+      - uses: lowlighter/metrics@latest
         with:
-          COMMIT_MSG: "Updated recent GitHub activity"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.README_UPDATER }}

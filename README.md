@@ -19,7 +19,7 @@ I'm a student at the HU University of Applied Sciences Utrecht, studying cyberse
 <!-- ## GitHub Contribution Graph
 ![Damian's GitHub Contribution Graph](https://activity-graph.herokuapp.com/graph?username=Damianko135&theme=github) -->
 
-## My most used languages
+## My most used langua
 ![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Damianko135&theme=tokyonight)
 
 ## Skills
