@@ -1,10 +1,8 @@
+---
 name: Build and Push Docker Image
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
   workflow_dispatch:
@@ -13,27 +11,44 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
       
       - name: Lowercase the repo name
-        run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+        run: | 
+          echo "REPO_LC=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+          echo "REPO_LC=${GITHUB_REPOSITORY,,}"
+          echo "REPO_LC"
+        
       
-      - name: Build and push
-        uses: docker/build-push-action@v6
+      - name: Generate semantic version
+        id: semver
+        run: |
+          # Get the run number from the environment
+          RUN_NUMBER=${GITHUB_RUN_NUMBER}
+          
+          # Calculate major, minor, and patch based on the run number
+          MAJOR=$((RUN_NUMBER / 100))        # Every 100 runs increases major
+          MINOR=$(((RUN_NUMBER % 100) / 10)) # Every 10 runs increases minor
+          PATCH=$((RUN_NUMBER % 10))         # Remaining runs increase patch
+          
+          # Format the version
+          VERSION="$MAJOR.$MINOR.$PATCH"
+          
+          # Output the version for use in later steps and logging
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Calculated version: $VERSION (from run #$RUN_NUMBER)"
+      
+      - uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ env.REPO_LC }}:latest
+          tags: |
+            ${{ env.REPO_LC }}:latest
+            ${{ env.REPO_LC }}:${{ env.VERSION }}
+            # ${{ env.REPO_LC }}:${{ env.VERSION }}-${{ github.sha }}
