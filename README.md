@@ -10,14 +10,10 @@ I'm a student at the **HU University of Applied Sciences Utrecht**, studying **c
 - **Proxmox:** Familiar with managing virtual environments.
 - **Windows Management:** Strong knowledge in Windows systems.
 
-## 📊 My Badges
 
-Here are some of the technologies and platforms I work with:
 
-![Fortune Badge](fortune.svg)
-![Languages Badge](languages.svg)
-![LeetCode Badge](leetcode.svg)
-![Repositories Badge](repositories.svg)
+![stats](metrics-stats.svg)
+
 
 ## 🌱 What I'm currently working on
 
