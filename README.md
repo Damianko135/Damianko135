@@ -17,8 +17,8 @@ I'm a student at the HU University of Applied Sciences Utrecht, studying cyberse
 ## GitHub Streak
 [![GitHub Streak](https://streak-stats.demolab.com?user=Damianko135&theme=dark)](https://git.io/streak-stats)
 
-## GitHub Contribution Graph
-![Damian's GitHub Contribution Graph](https://activity-graph.herokuapp.com/graph?username=Damianko135&theme=github)
+<!-- ## GitHub Contribution Graph
+![Damian's GitHub Contribution Graph](https://activity-graph.herokuapp.com/graph?username=Damianko135&theme=github) -->
 
 ## Skills
 - Linux (getting better every day!)
