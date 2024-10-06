@@ -1,5 +1,3 @@
-# .github/workflows/update-readme.yml
-
 name: Update README
 
 on:
@@ -15,6 +13,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # Configure Git
+      - name: Set up Git configuration
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       # Update Recent GitHub Activity in README
       - name: Update GitHub Activity
         uses: jamesgeorge007/github-activity-readme@master
@@ -22,4 +26,3 @@ jobs:
           COMMIT_MSG: "Updated recent GitHub activity"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
