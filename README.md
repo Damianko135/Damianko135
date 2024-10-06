@@ -22,6 +22,8 @@ I'm a student at the HU University of Applied Sciences Utrecht, studying cyberse
 ## My most used langua
 ![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Damianko135&theme=tokyonight)
 
+<p align="center"><img src="/github-metrics.svg" alt="Metrics" width="400"></p>
+
 ## Skills
 - Linux (getting better every day!)
 - Docker for hosting
