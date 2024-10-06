@@ -1,8 +1,10 @@
+# .github/workflows/update-readme.yml
+
 name: Update README
 
 on:
   schedule:
-    # Runs at 12am UTC every day
+    # Runs every day at midnight
     - cron: "0 0 * * *"
   workflow_dispatch:
 
@@ -10,20 +12,14 @@ jobs:
   update-readme:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      
-      # Fetch recent activity
-      - name: Update Recent GitHub Activity
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # Update Recent GitHub Activity in README
+      - name: Update GitHub Activity
         uses: jamesgeorge007/github-activity-readme@master
+        with:
+          COMMIT_MSG: "Updated recent GitHub activity"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      # Optional: Add GitHub Stats using anmol098/waka-readme-stats
-      - name: Profile Readme Development Stats
-        uses: anmol098/waka-readme-stats@master
-        with:
-          WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          SHOW_LINES_OF_CODE: "True"
-          SHOW_PROFILE_VIEWS: "False"
-          SHOW_SHORT_INFO: "False"
+
