@@ -42,3 +42,4 @@ jobs:
             # Doesnt need a whole new version with a spelling update or something of the sorts
             ${{ env.REPO_LC }}:${{ env.VERSION }}
             ${{ env.REPO_LC }}:${{ env.VERSION }}-${{ github.sha }}
+         platforms: linux/amd64,linux/arm64
