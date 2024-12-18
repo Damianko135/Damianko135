@@ -51,6 +51,18 @@ I'm a Cybersecurity and System Management student at HU University of Applied Sc
 
 <img src="./metrics-additional.svg" alt="Additional Metrics" width="100%">
 
+### 🏅 Achievements
+
+<img src="./metrics-achievements.svg" alt="Achievements Metrics" width="100%">
+
+### 🔄 Recent Activity
+
+<img src="./metrics-activity.svg" alt="Activity Metrics" width="100%">
+
+### 👥 Contributions
+
+<img src="./metrics-contributions.svg" alt="Contributions Metrics" width="100%">
+
 ---
 
 ### 🔗 Connect with Me
