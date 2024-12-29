@@ -3,7 +3,7 @@ name: CI/CD Pipeline for Docker
 
 # Trigger workflow on:
 # 1. Pushes to main branch
-# 2. Pull requests to main branch 
+# 2. Pull requests to main branch
 # 3. Manual workflow dispatch
 on:
   push:
@@ -92,11 +92,11 @@ jobs:
           MINOR=$(((RUN_NUMBER % 1000) / 100))
           PATCH=$((RUN_NUMBER % 100))
           VERSION="${MAJOR}.${MINOR}.${PATCH}"
-          
+
           # Convert repository name to lowercase for Docker tag
           # Ensures consistent tag naming across different repositories
           REPO_LC="${GITHUB_REPOSITORY,,}"
-          
+
           echo "Calculated version: ${VERSION}"
           # Output version and lowercase repo name for use in subsequent steps
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
@@ -107,13 +107,13 @@ jobs:
         with:
           # Use current directory as build context
           context: .
-          
+
           # Push the image only if the event is not a pull request
           push: ${{ github.event_name != 'pull_request' }}
-          
+
           # Load the image only if the event is a pull request
           load: ${{ github.event_name == 'pull_request' }}
-          
+
           # Tag the image with:
           # 1. 'latest' tag
           # 2. Current commit SHA
@@ -122,10 +122,10 @@ jobs:
             ${{ steps.semver.outputs.REPO_LC }}:latest
             ${{ steps.semver.outputs.REPO_LC }}:${{ github.sha }}
             ${{ steps.semver.outputs.REPO_LC }}:${{ steps.semver.outputs.version }}
-          
+
           # Build for both AMD64 and ARM64 platforms
           platforms: linux/amd64,linux/arm64
-          
+
           # Use GitHub Actions cache for build optimization
           cache-from: type=gha
           cache-to: type=gha,mode=max

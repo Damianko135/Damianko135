@@ -52,7 +52,6 @@ jobs:
           plugin_contributors: yes
           plugin_contributors_sections: commits, issues, pull-requests, reviews
 
-          
       - name: Generate Activity Metrics
         uses: lowlighter/metrics@latest
         with:
