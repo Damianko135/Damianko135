@@ -18,9 +18,7 @@ jobs:
     runs-on: ubuntu-latest
 
     if: |
-      github.actor == 'dependabot[bot]' &&
-      contains(github.event.pull_request.labels.*.name, 'dependabot-auto-merge')
-
+      github.actor == 'dependabot[bot]'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
