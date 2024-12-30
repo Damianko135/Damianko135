@@ -7,3 +7,4 @@ updates:
     labels:
       - "ci-dependencies"
       - "dependabot-auto-merge"
+      
