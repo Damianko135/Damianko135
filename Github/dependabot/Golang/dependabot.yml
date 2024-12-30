@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/" # Location of your go.mod file (root of the repository)
+    schedule:
+      interval: "weekly" # You can change this to "daily", "monthly", etc.
+    ignore:
+      - dependency-name: "github.com/golang/go"
+        versions: ["1.15.x"] # Example of ignoring specific versions of a dependency
+    labels:
+      - "go-dependencies"
+      - "dependabot-auto-merge"
+      # Reviewers and assignees can be added to the PRs created by Dependabot
+    # reviewers:
+    #   - "team-name"  # Optional reviewers for Go dependency PRs
+    # assignees:
+    #   - "user-name"  # Optional assignees for accountability
+    commit-message:
+      prefix: "chore" # Prefix commit message with "chore" to keep it clear that it's a dependency update
