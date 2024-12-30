@@ -56,10 +56,20 @@ jobs:
       # Build the Docker image
       - name: Build Docker Image
         run: docker build -t my-image:latest .
-      # Run tests inside the Docker container
-      - name: Run Tests
+
+      - name: Test Docker Container
         run: |
-          docker run --rm my-image:latest
+          echo "Checking for compose files..."
+          for file in docker-compose.yml compose.yml docker.compose.yml test-compose.yml; do
+            if [ -f "$file" ]; then
+              echo "Found compose file: $file"
+              docker compose --file "$file" build
+              docker compose --file "$file" up --build --abort-on-container-exit
+              exit 0
+            fi
+          done
+          echo "No compose file found, running single container test"
+          docker build -t my-image:latest --rm .
 
   build_and_push:
     name: Build and Push Docker Image
