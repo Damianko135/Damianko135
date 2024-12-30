@@ -19,7 +19,6 @@ jobs:
 
     if: |
       github.actor == 'dependabot[bot]' &&
-      startsWith(github.event.pull_request.title, 'Bump') &&
       contains(github.event.pull_request.labels.*.name, 'dependabot-auto-merge')
 
     steps:
