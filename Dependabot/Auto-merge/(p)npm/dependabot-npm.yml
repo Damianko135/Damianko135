@@ -1,0 +1,46 @@
+name: Dependabot node auto-merge
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: ${{
+      github.actor == 'dependabot[bot]' &&
+      contains(github.event.pull_request.labels.*.name, 'dependabot-auto-merge') &&
+      contains(github.event.pull_request.labels.*.name, 'npm-dependencies')  }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate PR is up-to-date
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git checkout ${{ github.event.pull_request.head.ref }}
+          git merge --no-edit origin/${{ github.event.pull_request.base.ref }}
+
+      - name: run npm install
+        run: npm install
+
+      - name: run npm build
+        run: npm run build
+
+      - name: Enable auto-merge
+        run: |
+          gh pr merge --auto --merge "$PR_URL"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+
+      - name: Post Success Message
+        run: |
+          echo "Dependabot PR #${{ github.event.pull_request.number }} processed successfully."

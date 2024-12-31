@@ -7,38 +7,19 @@ updates:
       interval: "weekly" # Check for updates weekly
     registries:
       - pnpm
-    commit-message:
-      prefix: "Bump"
-      include: "scope"
-    ignore:
-      - dependency-name: "example-dependency" # Ignore specific dependencies if needed
     labels:
-      - "dependencies"
-      - "pnpm"
+      - "pnpm-dependencies"
       - "dependabot-auto-merge"
-    # Reviewers and assignees can be added to the PRs created by Dependabot
-    # reviewers:
-    #   - "team-name"
-    # assignees:
-    #   - "user-name"
 
   # Update dependencies for npm
   - package-ecosystem: "npm"
     directory: "/" # Root directory for package.json
     schedule:
       interval: "weekly" # Check for updates weekly
-    commit-message:
-      prefix: "Bump"
-      include: "scope"
+
     labels:
-      - "dependencies"
-      - "npm"
+      - "npm-dependencies"
       - "dependabot-auto-merge"
-    # Reviewers and assignees can be added to the PRs created by Dependabot
-    # reviewers:
-    #   - "team-name"
-    # assignees:
-    #   - "user-name"
 
   # Update GitHub Actions workflows << BEST PRACTICE
   - package-ecosystem: "github-actions"
@@ -48,8 +29,3 @@ updates:
     labels:
       - "ci-dependencies"
       - "dependabot-auto-merge"
-    # Reviewers and assignees can be added to the PRs created by Dependabot
-    # reviewers:
-    #   - "team-name"
-    # assignees:
-    #   - "user-name"

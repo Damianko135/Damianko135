@@ -1,0 +1,20 @@
+version: 2
+updates:
+  # Maintain dependencies for Python
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "python-dependencies"
+      - "dependabot-auto-merge"
+    open-pull-requests-limit: 5
+
+  # Update GitHub Actions workflows << BEST PRACTICE
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly" # Update GitHub Actions dependencies monthly
+    labels:
+      - "ci-dependencies"
+      - "dependabot-auto-merge"

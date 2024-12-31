@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/" # Location of your go.mod file (root of the repository)
+    schedule:
+      interval: "weekly" # You can change this to "daily", "monthly", etc.
+    labels:
+      - "go-dependencies"
+      - "dependabot-auto-merge"
+
+  # Update GitHub Actions workflows << BEST PRACTICE
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly" # Update GitHub Actions dependencies monthly
+    labels:
+      - "ci-dependencies"
+      - "dependabot-auto-merge"
