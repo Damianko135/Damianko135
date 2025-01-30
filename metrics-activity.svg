@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="480" height="411" class="">
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="361" class="">
     <defs>
         <style/>
     </defs>
@@ -29,7 +29,47 @@
                                 <div class="details">
                                     <div>on branch <span class="code">main</span></div>
                                     <div class="commit">
-                                        <div class="sha">#a41cee7</div>
+                                        <div class="sha">#d35b496</div>
+                                        <div class="message">Contact page, sorta, no logic yet</div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                        <div class="row fill-width">
+                            <section class="activity">
+                                <div class="field">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+                                        <path fill-rule="evenodd" d="M10.5 7.75a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zm1.43.75a4.002 4.002 0 01-7.86 0H.75a.75.75 0 110-1.5h3.32a4.001 4.001 0 017.86 0h3.32a.75.75 0 110 1.5h-3.32z"/>
+                                    </svg>
+                                    <div class="content">
+                                        Pushed 1 commit in
+                                        <span class="repo">TandemIT/web-app</span>
+                                    </div>
+                                </div>
+                                <div class="details">
+                                    <div>on branch <span class="code">main</span></div>
+                                    <div class="commit">
+                                        <div class="sha">#d31080e</div>
+                                        <div class="message">Update Enthousiast.svelte</div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                        <div class="row fill-width">
+                            <section class="activity">
+                                <div class="field">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+                                        <path fill-rule="evenodd" d="M10.5 7.75a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zm1.43.75a4.002 4.002 0 01-7.86 0H.75a.75.75 0 110-1.5h3.32a4.001 4.001 0 017.86 0h3.32a.75.75 0 110 1.5h-3.32z"/>
+                                    </svg>
+                                    <div class="content">
+                                        Pushed 1 commit in
+                                        <span class="repo">TandemIT/web-app</span>
+                                    </div>
+                                </div>
+                                <div class="details">
+                                    <div>on branch <span class="code">main</span></div>
+                                    <div class="commit">
+                                        <div class="sha">#b9155f7</div>
                                         <div class="message">pnpm format</div>
                                     </div>
                                 </div>
@@ -43,14 +83,14 @@
                                     </svg>
                                     <div class="content">
                                         Pushed 1 commit in
-                                        <span class="repo">TandemIT/golang-addc</span>
+                                        <span class="repo">TandemIT/web-app</span>
                                     </div>
                                 </div>
                                 <div class="details">
                                     <div>on branch <span class="code">main</span></div>
                                     <div class="commit">
-                                        <div class="sha">#8c96e57</div>
-                                        <div class="message">uhm, sure</div>
+                                        <div class="sha">#501aeee</div>
+                                        <div class="message">Update Aanpak.svelte</div>
                                     </div>
                                 </div>
                             </section>
@@ -62,97 +102,17 @@
                                         <path fill-rule="evenodd" d="M10.5 7.75a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zm1.43.75a4.002 4.002 0 01-7.86 0H.75a.75.75 0 110-1.5h3.32a4.001 4.001 0 017.86 0h3.32a.75.75 0 110 1.5h-3.32z"/>
                                     </svg>
                                     <div class="content">
-                                        Pushed 2 commits in
-                                        <span class="repo">TandemIT/golang-addc</span>
+                                        Pushed 1 commit in
+                                        <span class="repo">TandemIT/web-app</span>
                                     </div>
                                 </div>
                                 <div class="details">
                                     <div>on branch <span class="code">main</span></div>
                                     <div class="commit">
-                                        <div class="sha">#9cb7d30</div>
-                                        <div class="message">Uhm, removed the unnecessary directory</div>
-                                    </div>
-                                    <div class="commit">
-                                        <div class="sha">#931bab9</div>
-                                        <div class="message">Uhm, removed the unnecessary directory</div>
-                                    </div>
-                                </div>
-                            </section>
-                        </div>
-                        <div class="row fill-width">
-                            <section class="activity">
-                                <div class="field">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
-                                        <path fill-rule="evenodd" d="M10.5 7.75a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zm1.43.75a4.002 4.002 0 01-7.86 0H.75a.75.75 0 110-1.5h3.32a4.001 4.001 0 017.86 0h3.32a.75.75 0 110 1.5h-3.32z"/>
-                                    </svg>
-                                    <div class="content">
-                                        Pushed 2 commits in
-                                        <span class="repo">TandemIT/golang-addc</span>
-                                    </div>
-                                </div>
-                                <div class="details">
-                                    <div>on branch <span class="code">main</span></div>
-                                    <div class="commit">
-                                        <div class="sha">#7f625d5</div>
-                                        <div class="message">Merge pull request #1 from TandemIT/dependabot/github_actions/golangci/golangci-lint-action-6
+                                        <div class="sha">#fa88f8d</div>
+                                        <div class="message">Update Goals.svelte
 
-Bump golangci/golangci-lint-action from 2 to 6</div>
-                                    </div>
-                                    <div class="commit">
-                                        <div class="sha">#fb678b3</div>
-                                        <div class="message">Bump golangci/golangci-lint-action from 2 to 6
-
-Bumps [golangci/golangci-lint-action](https://github.com/golangci/golangci-lint-action) from 2 to 6.
-- [Release notes](https://github.com/golangci/golangci-lint-action/releases)
-- [Commits](https://github.com/golangci/golangci-lint-action/compare/v2...v6)
-
----
-updated-dependencies:
-- dependency-name: golangci/golangci-lint-action
-  dependency-type: direct:production
-  update-type: version-update:semver-major
-...
-
-Signed-off-by: dependabot[bot] &lt;support@github.com&gt;</div>
-                                    </div>
-                                </div>
-                            </section>
-                        </div>
-                        <div class="row fill-width">
-                            <section class="activity">
-                                <div class="field">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
-                                        <path fill-rule="evenodd" d="M10.5 7.75a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zm1.43.75a4.002 4.002 0 01-7.86 0H.75a.75.75 0 110-1.5h3.32a4.001 4.001 0 017.86 0h3.32a.75.75 0 110 1.5h-3.32z"/>
-                                    </svg>
-                                    <div class="content">
-                                        Pushed 2 commits in
-                                        <span class="repo">TandemIT/golang-addc</span>
-                                    </div>
-                                </div>
-                                <div class="details">
-                                    <div>on branch <span class="code">main</span></div>
-                                    <div class="commit">
-                                        <div class="sha">#cd3ea73</div>
-                                        <div class="message">Merge pull request #2 from TandemIT/dependabot/github_actions/actions/setup-go-5
-
-Bump actions/setup-go from 4 to 5</div>
-                                    </div>
-                                    <div class="commit">
-                                        <div class="sha">#8da9787</div>
-                                        <div class="message">Bump actions/setup-go from 4 to 5
-
-Bumps [actions/setup-go](https://github.com/actions/setup-go) from 4 to 5.
-- [Release notes](https://github.com/actions/setup-go/releases)
-- [Commits](https://github.com/actions/setup-go/compare/v4...v5)
-
----
-updated-dependencies:
-- dependency-name: actions/setup-go
-  dependency-type: direct:production
-  update-type: version-update:semver-major
-...
-
-Signed-off-by: dependabot[bot] &lt;support@github.com&gt;</div>
+Lijkt nu meer op het design</div>
                                     </div>
                                 </div>
                             </section>
