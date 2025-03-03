@@ -1,16 +1,17 @@
 name: Metrics
-
 on:
   schedule:
     - cron: "0 0 * * *" # Runs at 00:00 UTC every day
   workflow_dispatch:
-
 jobs:
   github-metrics:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
       - name: Generate Language Metrics
         uses: lowlighter/metrics@latest
         with:
@@ -27,7 +28,7 @@ jobs:
           plugin_languages_colors: github
           plugin_languages_details: percentage
           plugin_languages_threshold: 2%
-
+          
       - name: Generate Repository Metrics
         uses: lowlighter/metrics@latest
         with:
@@ -42,7 +43,7 @@ jobs:
           plugin_repositories_random: 5
           plugin_repositories_forks: yes
           repositories_batch: 10
-
+          
       - name: Generate Contribution Metrics
         uses: lowlighter/metrics@latest
         with:
@@ -51,7 +52,7 @@ jobs:
           base: ""
           plugin_contributors: yes
           plugin_contributors_sections: commits, issues, pull-requests, reviews
-
+          
       - name: Generate Activity Metrics
         uses: lowlighter/metrics@latest
         with:
@@ -61,7 +62,7 @@ jobs:
           plugin_activity: yes
           plugin_activity_limit: 5
           plugin_activity_days: 14
-
+          
       - name: Generate Achievements Metrics
         uses: lowlighter/metrics@latest
         with:
@@ -71,7 +72,7 @@ jobs:
           plugin_achievements: yes
           plugin_achievements_display: detailed
           plugin_achievements_threshold: B
-
+          
       - name: Generate Additional Metrics
         uses: lowlighter/metrics@latest
         with:
@@ -85,11 +86,11 @@ jobs:
           plugin_habits_days: 14
           plugin_habits_facts: yes
           plugin_habits_charts: yes
-
+          
       - name: Commit and Push Metrics
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add .
           git commit -m "Update README with new metrics"
-          git push HEAD
+          git push
