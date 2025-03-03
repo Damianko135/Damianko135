@@ -1,9 +1,9 @@
 <div align="center">
   <h1>
-    Hi there, I'm Damian 
+    Hi there, I'm Damian
     <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="30px"/>
   </h1>
-  
+ 
   <img src="https://komarev.com/ghpvc/?username=Damianko135&style=flat-square&color=blue" alt="Profile Views"/>
 </div>
 
@@ -11,26 +11,25 @@
 
 ### 👨‍🎓 About Me
 
-I'm a Cybersecurity and System Management student at HU University of Applied Sciences Utrecht. Currently in my second year and passionate about:
-
+I'm a second-year IT student at HU University of Applied Sciences Utrecht. My interests include:
 - 🔒 Cybersecurity
 - 🖥️ System Administration
 - 🐧 Linux
 - 🐋 Docker
+- 💻 Fullstack Development
 
-### 🔨 What I'm Working On
+### 🔨 Current Projects
 
-- 🔄 Automating PC resets using WDS
-- 🌐 Self-hosting websites on my OrangePi 5
-- 📚 Expanding my knowledge in penetration testing
+- 🔄 Co-founder at [Tandem IT](https://tandem-it.nl)
+- 🌐 Self-hosting infrastructure using OrangePi 5
 
 ---
 
-### 🛠️ My Tech Toolbox
+### 🛠️ Technical Skills
 
 <img src="./metrics-languages.svg" alt="Metrics" width="100%">
 
-### 📊 My GitHub Journey
+### 📊 GitHub Statistics
 
 <img align="left" width="47%" src="https://github-readme-stats.vercel.app/api?username=Damianko135&show_icons=true&theme=tokyonight"/>
 <img align="right" width="47%" src="https://github-readme-streak-stats.herokuapp.com/?user=Damianko135&theme=tokyonight"/>
@@ -39,7 +38,7 @@ I'm a Cybersecurity and System Management student at HU University of Applied Sc
 
 ---
 
-### 🏆 My GitHub Trophies
+### 🏆 GitHub Achievements
 
 ![](https://github-profile-trophy.vercel.app/?username=Damianko135&theme=tokyonight&no-frame=false&no-bg=true&margin-w=4)
 
@@ -47,11 +46,11 @@ I'm a Cybersecurity and System Management student at HU University of Applied Sc
 
 <img src="./metrics-repositories.svg" alt="Repositories Metrics" width="100%">
 
-### 📈 Contribution Graph
+### 📈 Contribution Activity
 
 <img src="./metrics-additional.svg" alt="Additional Metrics" width="100%">
 
-### 🏅 Achievements
+### 🏅 Notable Achievements
 
 <img src="./metrics-achievements.svg" alt="Achievements Metrics" width="100%">
 
@@ -59,7 +58,7 @@ I'm a Cybersecurity and System Management student at HU University of Applied Sc
 
 <img src="./metrics-activity.svg" alt="Activity Metrics" width="100%">
 
-### 👥 Contributions
+### 👥 Open Source Contributions
 
 <img src="./metrics-contributions.svg" alt="Contributions Metrics" width="100%">
 
