@@ -12,6 +12,7 @@
 ### 👨‍🎓 About Me
 
 I'm a second-year IT student at HU University of Applied Sciences Utrecht. My interests include:
+
 - 🔒 Cybersecurity
 - 🖥️ System Administration
 - 🐧 Linux
