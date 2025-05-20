@@ -11,56 +11,50 @@
 %
 % Template license:
 % CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
-%
-
 
 %-------------------------------------------------------------------------------
-% CONFIGURATIONS
+%	CONFIGURATIONS
 %-------------------------------------------------------------------------------
 % A4 paper size by default, use 'letterpaper' for US letter
 \documentclass[11pt, a4paper]{awesome-cv}
 
 % Configure page margins with geometry
-\geometry{left=1.4cm, top=.8cm, right=1.4cm, bottom=1.8cm, footskip=.5cm}
+\geometry{left=1.4cm, top=0.8cm, right=1.4cm, bottom=1.8cm, footskip=0.5cm}
 
-% Color for highlights
-% Awesome Colors: awesome-emerald, awesome-skyblue, awesome-red, awesome-pink, awesome-orange
-%                 awesome-nephritis, awesome-concrete, awesome-darknight
+% Theme color for highlights
+% Available options: awesome-red, awesome-skyblue, awesome-orange, etc.
 \colorlet{awesome}{awesome-red}
-% Uncomment if you would like to specify your own color
+% Uncomment to specify a custom color
 % \definecolor{awesome}{HTML}{CA63A8}
 
-% Colors for text
-% Uncomment if you would like to specify your own color
+% Optional: customize text colors
 % \definecolor{darktext}{HTML}{414141}
 % \definecolor{text}{HTML}{333333}
 % \definecolor{graytext}{HTML}{5D5D5D}
 % \definecolor{lighttext}{HTML}{999999}
 % \definecolor{sectiondivider}{HTML}{5D5D5D}
 
-% Set false if you don't want to highlight section with awesome color
+% Highlight section titles in awesome color?
 \setbool{acvSectionColorHighlight}{true}
 
-% If you would like to change the social information separator from a pipe (|) to something else
+% Customize social info separator (default is |)
 \renewcommand{\acvHeaderSocialSep}{\quad\textbar\quad}
-
 
 %-------------------------------------------------------------------------------
 %	PERSONAL INFORMATION
-%	Comment any of the lines below if they are not required
 %-------------------------------------------------------------------------------
-% Available options: circle|rectangle,edge/noedge,left/right
-% \photo{./examples/profile.png}
-\name{Claud D.}{Park}
-\position{Site Reliability Engineer{\enskip\cdotp\enskip}Software Architect}
-\address{235, World Cup buk-ro, Mapo-gu, Seoul, 03936, Republic of Korea}
+% Available options for photo: circle|rectangle, edge/noedge, left/right
+% \photo{./curriculum-vitae/profile.png}
+\name{D}{Korver}
+% \position{Site Reliability Engineer{\enskip\cdotp\enskip}Software Architect}
+\address{3956 GG, Leersum, The Netherlands}
 
-\mobile{(+82) 10-9030-1843}
-\email{posquit0.bj@gmail.com}
-%\dateofbirth{January 1st, 1970}
-\homepage{www.posquit0.com}
-\github{posquit0}
-\linkedin{posquit0}
+\mobile{(+31) 6 28289768}
+\email{damiankorver@gmail.com}
+\dateofbirth{January 26th, 2003}
+\homepage{www.dkorver.nl}
+\github{Damianko135}
+\linkedin{Damianko135}
 % \gitlab{gitlab-id}
 % \stackoverflow{SO-id}{SO-name}
 % \twitter{@twit}
@@ -71,42 +65,36 @@
 % \hackerrank{hackerrank-id}
 % \telegram{telegram-username}
 % \googlescholar{googlescholar-id}{name-to-display}
-%% \firstname and \lastname will be used
-% \googlescholar{googlescholar-id}{}
 % \extrainfo{extra information}
 
-\quote{``Be the change that you want to see in the world."}
-
+% \quote{``Be the change that you want to see in the world."}
 
 %-------------------------------------------------------------------------------
 \begin{document}
 
-% Print the header with above personal information
-% Give optional argument to change alignment(C: center, L: left, R: right)
-\makecvheader
+% Print the header
+% Alignment options: C (center), L (left), R (right)
+\makecvheader[R]
 
-% Print the footer with 3 arguments(<left>, <center>, <right>)
-% Leave any of these blank if they are not needed
+% Footer with custom content: left, center, right
 \makecvfooter
   {\today}
   {D. Korver~~~·~~~Curriculum Vitae}
   {\thepage}
 
-
 %-------------------------------------------------------------------------------
 %	CV/RESUME CONTENT
-%	Each section is imported separately, open each file in turn to modify content
+%	Each section is imported separately from the `cv/` folder
 %-------------------------------------------------------------------------------
 \input{cv/education.tex}
 \input{cv/skills.tex}
 \input{cv/experience.tex}
 \input{cv/extracurricular.tex}
 \input{cv/honors.tex}
-% \input{cv/certificates.tex}
-\input{cv/presentation.tex}
-\input{cv/writing.tex}
-% \input{cv/committees.tex}
-
+% \input{cv/certificates.tex} % Uncomment if you want certificates shown
+% \input{cv/presentation.tex}
+% \input{cv/writing.tex}
+% \input{cv/committees.tex} % Optional, if you've served on committees
 
 %-------------------------------------------------------------------------------
 \end{document}
