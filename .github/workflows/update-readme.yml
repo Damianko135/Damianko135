@@ -91,7 +91,7 @@ jobs:
           plugin_habits_charts: yes
 
       - name: Commit and Push Metrics
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: Update README with new metrics
           file_pattern: "*.svg"
