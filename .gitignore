@@ -49,3 +49,7 @@
 build/
 main_out/
 
+# Code editors
+.vscode/
+.idea/
+
