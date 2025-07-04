@@ -35,7 +35,7 @@ jobs:
           MAJOR=$((RUN_NUMBER / 1000))
           MINOR=$(((RUN_NUMBER % 1000) / 100))
           PATCH=$((RUN_NUMBER % 100))
-          VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          VERSION=v"${MAJOR}.${MINOR}.${PATCH}"
 
           # Convert repository name to lowercase for Docker tag
           # Ensures consistent tag naming across different repositories

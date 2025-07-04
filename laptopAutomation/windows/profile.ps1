@@ -3,12 +3,12 @@
 # Author: Damian Korver
 # Description: Sets up PowerShell profile with aliases and useful functions
 
-Set-StrictMode -Version Latest
-
-param(
-    [switch]$Force,
-    [switch]$Append
+param (
+    [switch] $Force,
+    [switch] $Append
 )
+
+Set-StrictMode -Version Latest
 
 function Write-Log {
     param([string]$Message, [ConsoleColor]$Color='White')
@@ -28,19 +28,19 @@ $profileContent = @"
 # PowerShell Profile setup by Damian Korver
 
 # Enable Windows Console Colors
-if ($Host.Name -eq 'ConsoleHost') {
-    $Host.UI.RawUI.ForegroundColor = 'White'
-    $Host.UI.RawUI.BackgroundColor = 'Black'
+if (`$Host.Name -eq 'ConsoleHost') {
+    `$Host.UI.RawUI.ForegroundColor = 'White'
+    `$Host.UI.RawUI.BackgroundColor = 'Black'
     Clear-Host
 }
 
-# Git Aliases
-Set-Alias gs git status
-Set-Alias gb git branch
-Set-Alias gl git log
-Set-Alias gc git commit
-Set-Alias gp git push
-Set-Alias gco git checkout
+# Git Aliases (using functions for proper command execution)
+function gs { git status $args }
+function gb { git branch $args }
+function gl { git log $args }
+function gc { git commit $args }
+function gp { git push $args }
+function gco { git checkout $args }
 
 # General Aliases
 Set-Alias ll Get-ChildItem
@@ -56,7 +56,7 @@ if (Get-Module -ListAvailable posh-git) {
 
 # Custom prompt
 function prompt {
-    "$(Get-Location)> "
+    "`$(Get-Location)> "
 }
 
 "@

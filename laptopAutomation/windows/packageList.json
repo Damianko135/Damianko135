@@ -15,6 +15,7 @@
   { "Name": "PowerShell 7", "wingetId": "Microsoft.PowerShell", "chocoId": "powershell-core" },
   { "Name": "Node.js", "wingetId": "OpenJS.NodeJS", "chocoId": "nodejs" },
   { "Name": "Docker Desktop", "wingetId": "Docker.DockerDesktop", "chocoId": "docker-desktop" },
+  { "Name": "Act GH Runner", "wingetId": "nektos.act", "chocoId": "act-cli" },
   { "Name": "Microsoft Teams", "wingetId": "Microsoft.Teams", "chocoId": "microsoft-teams" },
   { "Name": "Discord", "wingetId": "Discord.Discord", "chocoId": "discord" }
 ]
