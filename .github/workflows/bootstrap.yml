@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - 'laptopAutomation/windows/**'
+  workflow_dispatch:
+
 
 permissions:
   contents: write  # Required to create releases and upload assets
