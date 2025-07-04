@@ -1,0 +1,39 @@
+name: Auto Build & Release Bootstrap Archive
+
+on:
+  push:
+    paths:
+      - 'laptopAutomation/windows/**'
+
+permissions:
+  contents: write  # Required to create releases and upload assets
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compress Windows Setup Files
+        run: |
+          mkdir dist
+          cd laptopAutomation/windows
+          zip -r ../../dist/Bootstrap.zip * -x ".vscode/*"
+
+      - name: Generate Version
+        id: version
+        run: |
+          # Example: vYYYYMMDD-HHMM + short commit hash
+          VERSION="v$(date +'%Y%m%d-%H%M')-$(git rev-parse --short HEAD)"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          release_name: "Auto Release ${{ steps.version.outputs.version }}"
+          generate_release_notes: true
+          files: dist/Bootstrap.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

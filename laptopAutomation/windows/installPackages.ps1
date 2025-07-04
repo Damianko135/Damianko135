@@ -51,7 +51,7 @@ $ChocoAvailable = (Get-Command choco -ErrorAction SilentlyContinue) -ne $null
 function Install-WinGetPackage {
     param([string]$packageId)
     try {
-        Write-Log "Attempting winget install : $packageId" Cyan
+        Write-Log "Attempting winget install: $packageId" Cyan
         # Use -e for exact match, accept agreements, silent mode
         winget install --id=$packageId --accept-source-agreements --accept-package-agreements --silent -e
         Write-Log "Successfully installed $packageId via winget." Green
