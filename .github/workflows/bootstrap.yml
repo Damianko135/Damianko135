@@ -24,9 +24,24 @@ jobs:
       - name: Generate Version
         id: version
         run: |
-          # Example: vYYYYMMDD-HHMM + short commit hash
-          VERSION="v$(date +'%Y%m%d-%H%M')-$(git rev-parse --short HEAD)"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          # Calculate semantic version based on GitHub run number
+          # This creates a unique version like 1.2.34 where:
+          # - 1 = Major version (thousands place)
+          # - 2 = Minor version (hundreds place)
+          # - 34 = Patch version (last two digits)
+          RUN_NUMBER=$GITHUB_RUN_NUMBER
+          MAJOR=$((RUN_NUMBER / 1000))
+          MINOR=$(((RUN_NUMBER % 1000) / 100))
+          PATCH=$((RUN_NUMBER % 100))
+          VERSION="${MAJOR}.${MINOR}.${PATCH}"
+
+          # Convert repository name to lowercase for Docker tag
+          # Ensures consistent tag naming across different repositories
+          REPO_LC="${GITHUB_REPOSITORY,,}"
+
+          echo "Calculated version: ${VERSION}"
+          # Output version and lowercase repo name for use in subsequent steps
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
