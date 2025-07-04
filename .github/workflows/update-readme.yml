@@ -1,8 +1,8 @@
-name: Metrics
+name: Update Profile README
 
 on:
   schedule:
-    - cron: "0 0 * * 0" # Runs at 00:00 UTC every monday
+    - cron: "0 0 * * 0" # Runs at 00:00 UTC every Sunday
   workflow_dispatch:
 
 jobs:
@@ -65,6 +65,8 @@ jobs:
           plugin_activity: yes
           plugin_activity_limit: 5
           plugin_activity_days: 14
+          plugin_activity_visibility: public
+          plugin_activity_timestamps: yes
 
       - name: Generate Achievements Metrics
         uses: lowlighter/metrics@latest
@@ -89,9 +91,35 @@ jobs:
           plugin_habits_days: 14
           plugin_habits_facts: yes
           plugin_habits_charts: yes
+          plugin_habits_charts_type: classic
 
       - name: Commit and Push Metrics
-        uses: stefanzweifel/git-auto-commit-action@v6
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: Update README with new metrics
+          commit_message: "📊 Update README with new metrics"
           file_pattern: "*.svg"
+
+  # Optional: Generate contribution snake animation
+  generate-snake:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate Snake Animation
+        uses: Platane/snk/svg-only@v3
+        with:
+          github_user_name: Damianko135
+          outputs: |
+            dist/github-contribution-grid-snake.svg
+            dist/github-contribution-grid-snake-dark.svg?palette=github-dark
+
+      - name: Push Snake Animation
+        uses: crazy-max/ghaction-github-pages@v3
+        with:
+          target_branch: output
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
