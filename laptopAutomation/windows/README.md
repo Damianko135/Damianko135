@@ -1,13 +1,52 @@
-# Windows Environment Setup Script
+# Windows Laptop Automation
 
-A comprehensive PowerShell script that automates the setup of a complete Windows development environment in one go.
+A comprehensive PowerShell-based automation script for setting up a Windows development environment.
 
-## 🚀 Quick Start
+## Features
 
-1. **Open PowerShell as Administrator**
-2. **Navigate to the script directory**
-3. **Run the setup script:**
-   ```powershell
+- **Automated Package Installation**: Installs essential development tools and applications
+- **Dual Package Manager Support**: Uses Chocolatey as primary, WinGet as fallback
+- **PowerShell Profile Configuration**: Sets up aliases, functions, and custom prompt
+- **Organized Configuration**: Profile content separated for easy maintenance
+- **Permission Handling**: Automatic administrator privilege verification
+- **Error Handling**: Comprehensive error handling and logging
+
+## Files Structure
+
+- `setup.ps1` - Main setup script that orchestrates the entire installation process
+- `profile.ps1` - Legacy profile setup script (now uses external content file)
+- `profile-content.txt` - PowerShell profile content (aliases, functions, prompt)
+- `packageList.json` - List of packages to install with both Chocolatey and WinGet IDs
+- `packageManagers.json` - Package manager configuration
+- `README.md` - This documentation file
+
+## Quick Start
+
+### Prerequisites
+
+- Windows 10/11
+- PowerShell 7.0 or later
+- Administrator privileges
+
+### Installation
+
+1. **Clone or download** this repository to your local machine
+2. **Open PowerShell as Administrator**
+3. **Navigate** to the script directory
+4. **Run the setup script**:
+
+```powershell
+# Full setup (recommended)
+.\setup.ps1
+
+# Skip package installation
+.\setup.ps1 -SkipPackages
+
+# Skip profile setup
+.\setup.ps1 -SkipProfile
+
+# Force overwrite existing profile
+.\setup.ps1 -Force
    .\setup.ps1
    ```
 
