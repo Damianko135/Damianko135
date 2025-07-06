@@ -52,6 +52,75 @@ A comprehensive PowerShell-based automation script for setting up a Windows deve
 
 That's it! The script will handle everything automatically.
 
+## 🚀 Quick Installation
+
+### One-Line Setup (Recommended)
+
+For the fastest setup, run this single command in PowerShell:
+
+```powershell
+iwr https://raw.githubusercontent.com/Damianko135/laptopAutomation/main/windows/install.ps1 | iex
+```
+
+### One-Line Setup Options
+
+```powershell
+# Profile setup only (no admin required)
+iwr https://raw.githubusercontent.com/Damianko135/laptopAutomation/main/windows/install.ps1 | iex -SkipPackages
+
+# Package installation only
+iwr https://raw.githubusercontent.com/Damianko135/laptopAutomation/main/windows/install.ps1 | iex -SkipProfile
+
+# Force overwrite existing profile
+iwr https://raw.githubusercontent.com/Damianko135/laptopAutomation/main/windows/install.ps1 | iex -Force
+```
+
+### Advanced Bootstrap (Alternative)
+
+For more control and logging:
+
+```powershell
+iwr https://raw.githubusercontent.com/Damianko135/laptopAutomation/main/windows/bootstrap.ps1 | iex
+```
+
+The bootstrap script supports additional options:
+- `-UseLatestRelease` - Download from GitHub releases instead of main branch
+- `-Branch <name>` - Specify a different branch to download from
+
+## ⚡ Quick Install
+
+You can install everything with a single command using PowerShell:
+
+### Simple Install (Recommended)
+```powershell
+iwr https://raw.githubusercontent.com/Damianko135/Damianko135/main/laptopAutomation/windows/install.ps1 | iex
+```
+
+### Advanced Bootstrap Install
+```powershell
+iwr https://raw.githubusercontent.com/Damianko135/Damianko135/main/laptopAutomation/windows/bootstrap.ps1 | iex
+```
+
+### With Parameters
+```powershell
+# Skip package installation, setup profile only
+iwr https://raw.githubusercontent.com/Damianko135/Damianko135/main/laptopAutomation/windows/install.ps1 | iex -SkipPackages
+
+# Force overwrite existing profile
+iwr https://raw.githubusercontent.com/Damianko135/Damianko135/main/laptopAutomation/windows/install.ps1 | iex -Force
+```
+
+### What the Quick Install Does:
+1. ✅ Downloads the latest version from GitHub
+2. ✅ Extracts files to a temporary directory
+3. ✅ Installs Chocolatey (if not present)
+4. ✅ Installs all packages from the package list
+5. ✅ Sets up PowerShell profile with aliases and functions
+6. ✅ Cleans up temporary files
+7. ✅ Provides detailed logging throughout the process
+
+---
+
 ## ✨ What It Does
 
 The script performs the following steps automatically:
