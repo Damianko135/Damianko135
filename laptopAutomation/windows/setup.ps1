@@ -3,7 +3,7 @@
 # Author: Damian Korver
 # Description: Minimal setup script that installs packages and configures PowerShell profile
 
-#Requires -Version 7.0
+#Requires -Version 5.1
 
 param (
     [switch] $SkipPackages,

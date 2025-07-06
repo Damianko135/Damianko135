@@ -3,7 +3,7 @@
 # Author: Damian Korver
 # Description: Downloads the latest release and runs the setup script
 
-#Requires -Version 7.0
+#Requires -Version 5.1
 
 param (
     [switch] $SkipPackages,
@@ -40,7 +40,7 @@ try {
     Write-Log "Latest release: $releaseName ($tagName)" Green
     
     # Find the Windows automation zip asset
-    $windowsAsset = $latestRelease.assets | Where-Object { $_.name -like "*windows*" -or $_.name -like "*laptopAutomation*" }
+    $windowsAsset = $latestRelease.assets | Where-Object { $_.name -like "*Bootstrap*" }
     
     if (-not $windowsAsset) {
         # Fallback to any zip asset
@@ -60,7 +60,7 @@ try {
     
     Write-Log "Selected asset: $($windowsAsset.name)" Green
     
-    # Download the latest release
+    # Download with better compatibility
     Write-Log "Downloading release from: $downloadUrl" Cyan
     Write-Log "Saving to: $zipFilePath" Gray
     
@@ -70,9 +70,23 @@ try {
         Remove-Item $zipFilePath -Force
     }
     
-    # Download with progress
-    $webClient = New-Object System.Net.WebClient
-    $webClient.DownloadFile($downloadUrl, $zipFilePath)
+    # Use Invoke-WebRequest for better PowerShell 5.1 compatibility
+    try {
+        if ($PSVersionTable.PSVersion.Major -ge 6) {
+            # PowerShell 6+ method
+            Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath -UseBasicParsing
+        } else {
+            # PowerShell 5.1 method - disable progress bar for performance
+            $ProgressPreference = 'SilentlyContinue'
+            Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath -UseBasicParsing
+            $ProgressPreference = 'Continue'
+        }
+    } catch {
+        # Fallback to WebClient if Invoke-WebRequest fails
+        Write-Log "Invoke-WebRequest failed, trying WebClient..." Yellow
+        $webClient = New-Object System.Net.WebClient
+        $webClient.DownloadFile($downloadUrl, $zipFilePath)
+    }
     
     if (-not (Test-Path $zipFilePath)) {
         throw "Failed to download the release zip file"
@@ -90,7 +104,16 @@ try {
     }
     
     Write-Log "Extracting to: $extractPath" Cyan
-    Expand-Archive -Path $zipFilePath -DestinationPath $extractPath -Force
+    
+    # Use Expand-Archive with PowerShell 5.1+ compatibility
+    if (Get-Command Expand-Archive -ErrorAction SilentlyContinue) {
+        Expand-Archive -Path $zipFilePath -DestinationPath $extractPath -Force
+    } else {
+        # Fallback for very old PowerShell versions
+        Write-Log "Expand-Archive not available, using .NET extraction..." Yellow
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFilePath, $extractPath)
+    }
     
     # Find the setup script (look for it in the extracted contents)
     Write-Log "Searching for setup.ps1..." Cyan
