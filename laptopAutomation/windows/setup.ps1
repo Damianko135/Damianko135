@@ -142,7 +142,7 @@ function Install-Packages {
 # Setup PowerShell profile
 function Setup-PowerShellProfile {
     $profilePath = $PROFILE
-    $profileContentPath = Join-Path $PSScriptRoot "profile-content.txt"
+    $profileContentPath = Join-Path $PSScriptRoot "profile-content.ps1"
     
     if (-not (Test-Path $profileContentPath)) {
         Write-Log "Profile content file not found: $profileContentPath" Red
