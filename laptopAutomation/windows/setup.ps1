@@ -8,7 +8,8 @@
 param (
     [switch] $SkipPackages,
     [switch] $SkipProfile,
-    [switch] $Force
+    [switch] $Force,
+    [switch] $SkipOffice
 )
 
 Set-StrictMode -Version Latest
@@ -195,7 +196,25 @@ if (-not $SkipPackages) {
         exit 1
     }
 } else {
-    Write-Log "Skipping package installation" Yellow
+    Write-Log "Skipping package installation" Yellow 
+}
+
+# Run office.ps1 if it exists
+$officeScriptPath = Join-Path $PSScriptRoot "office.ps1"    
+if (Test-Path $officeScriptPath ) {
+    # Test if not wanted with the -SkipOffice switch
+    if ($SkipOffice) {
+        Write-Log "Skipping Office setup script as requested" Yellow
+        return
+    }
+    Write-Log "Running Office setup script: $officeScriptPath" Cyan
+    try {
+        . $officeScriptPath
+    } catch {
+        Write-Log "Failed to run Office setup script: $($_.Exception.Message)" Red
+    }
+} else {
+    Write-Log "Office setup script not found: $officeScriptPath" Yellow
 }
 
 # Setup PowerShell profile
