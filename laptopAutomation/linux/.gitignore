@@ -1,0 +1,109 @@
+# ─── Python Virtual Environments ────────────────────────────────────
+venv/
+.venv/
+env/
+.env/
+ENV/
+env.bak/
+venv.bak/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ─── Logs and Runtime Files ──────────────────────────────────────────
+*.log
+*.out
+*.err
+setup.log
+ansible.log
+*.tmp
+*.temp
+.cache/
+.pytest_cache/
+
+# ─── Backup Files ────────────────────────────────────────────────────
+backups/
+*.backup
+*.bak
+*.orig
+*~
+.#*
+\#*#
+
+# ─── IDE and Editor Files ────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+
+# ─── Operating System Files ──────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ─── NixOS Generated Files ───────────────────────────────────────────
+# Allow hardware-configuration.nix but ignore if it's auto-generated
+result
+result-*
+.direnv/
+
+# ─── Ansible Runtime Files ───────────────────────────────────────────
+.ansible/
+*.retry
+.galaxy_install_info
+
+# ─── SSH and Security Files ──────────────────────────────────────────
+*.pem
+*.key
+*.crt
+*.csr
+id_rsa*
+id_ed25519*
+known_hosts
+authorized_keys
+
+# ─── Temporary and Lock Files ────────────────────────────────────────
+*.lock
+.terraform/
+.terraform.lock.hcl
+
+# ─── Allow These Files (Nix and Ansible Configuration) ───────────────
+# Explicitly allowing key files (overrides above patterns if needed)
+!flake.nix
+!flake.lock
+!configuration.nix
+!home.nix
+!hardware-configuration.nix
+!install-nix.yml
+!run.sh
+!README.md
+!modules/
+!modules/**/*.nix

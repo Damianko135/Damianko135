@@ -1,0 +1,119 @@
+---
+- name: Install Nix Package Manager (Multi-User) on localhost
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: true
+
+  vars:
+    nix_install_script_url: "https://nixos.org/nix/install"
+    nix_daemon_profile: "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
+    nix_env_file: "/etc/profile.d/nix.sh"
+    nix_bashrc_file: "/etc/bash.bashrc"
+
+  tasks:
+    - name: Ensure required dependencies are installed
+      block:
+        - name: Install dependencies on Debian/Ubuntu
+          ansible.builtin.apt:
+            name:
+              - curl
+              - sudo
+              - xz-utils
+            state: present
+            update_cache: true
+          when: ansible_os_family == "Debian"
+
+        - name: Install dependencies on RHEL/CentOS/Fedora
+          ansible.builtin.package:
+            name:
+              - curl
+              - sudo
+              - xz
+            state: present
+          when: ansible_os_family == "RedHat"
+
+        - name: Install dependencies on Arch Linux
+          ansible.builtin.pacman:
+            name:
+              - curl
+              - sudo
+              - xz
+            state: present
+          when: ansible_os_family == "Archlinux"
+
+        - name: Install dependencies on openSUSE
+          ansible.builtin.zypper:
+            name:
+              - curl
+              - sudo
+              - xz
+            state: present
+          when: ansible_os_family == "Suse"
+
+    - name: Check if Nix is already installed
+      ansible.builtin.stat:
+        path: /nix
+      register: nix_installed
+
+    - name: Download Nix installer
+      ansible.builtin.get_url:
+        url: "{{ nix_install_script_url }}"
+        dest: /tmp/nix-install.sh
+        mode: '0755'
+      when: not nix_installed.stat.exists
+
+    - name: Run Nix installer (Multi-User Daemon Mode)
+      ansible.builtin.shell: |
+        /tmp/nix-install.sh --daemon --yes
+      args:
+        creates: /nix
+      when: not nix_installed.stat.exists
+
+    - name: Clean up installer script
+      ansible.builtin.file:
+        path: /tmp/nix-install.sh
+        state: absent
+      when: not nix_installed.stat.exists
+
+    - name: Ensure nix-daemon environment script is loaded system-wide
+      ansible.builtin.copy:
+        dest: "{{ nix_env_file }}"
+        content: |
+          if [ -e "{{ nix_daemon_profile }}" ]; then
+            . "{{ nix_daemon_profile }}"
+          fi
+
+    - name: Ensure Nix environment is sourced in /etc/bash.bashrc
+      ansible.builtin.lineinfile:
+        path: "{{ nix_bashrc_file }}"
+        line: '. "{{ nix_env_file }}"'
+        state: present
+        insertafter: EOF
+        create: yes
+
+    - name: Enable and start nix-daemon socket (systemd)
+      ansible.builtin.systemd:
+        name: nix-daemon.socket
+        enabled: true
+        state: started
+      when: ansible_service_mgr == "systemd"
+
+    - name: Enable and start nix-daemon service (systemd)
+      ansible.builtin.systemd:
+        name: nix-daemon
+        enabled: true
+        state: started
+      when: ansible_service_mgr == "systemd"
+
+    - name: Verify Nix installation
+      ansible.builtin.shell: |
+        source "{{ nix_env_file }}"
+        nix --version
+      register: nix_version
+      changed_when: false
+      failed_when: nix_version.rc != 0
+
+    - name: Display Nix version
+      ansible.builtin.debug:
+        msg: "Nix installed successfully: {{ nix_version.stdout }}"
