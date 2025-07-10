@@ -43,8 +43,6 @@
 
   # ─── Fonts ────────────────────────────────────────────────────────────
   fonts = {
-    enable = true;
-    
     # Font directories
     fontDir.enable = true;
     
@@ -87,8 +85,5 @@
         emoji = [ "Noto Color Emoji" ];
       };
     };
-  };
-    layout = "us";
-    variant = "";
   };
 }

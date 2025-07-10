@@ -60,12 +60,20 @@
     };
   };
 
+  # ─── Development Configuration ────────────────────────────────────────
+  development = {
+    enable = true;
+    languages = [ "python" "javascript" "rust" "go" ];
+  };
+
+  # ─── Features Configuration ───────────────────────────────────────────
+  features = {
+    docker = true;
+    virtualization = true;
+  };
+
   # ─── Programs Configuration ───────────────────────────────────────────
   programs = {
-    development = {
-      enable = true;
-      languages = [ "python" "javascript" "rust" "go" ];
-    };
     gaming = {
       enable = false;
       steam = false;

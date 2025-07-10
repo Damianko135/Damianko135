@@ -100,8 +100,4 @@
     # Modesetting required for Wayland
     modesetting.enable = true;
   };
-    modesetting.enable = true;
-    open = false; # Use proprietary driver
-    nvidiaSettings = true;
-  };
 }

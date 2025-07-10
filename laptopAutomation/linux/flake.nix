@@ -31,7 +31,7 @@
       
       # Overlay for unstable packages
       overlays = [
-        nur.overlay
+        nur.overlays.default
         (final: prev: {
           unstable = import nixpkgs-unstable {
             inherit system;

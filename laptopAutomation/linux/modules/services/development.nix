@@ -1,4 +1,4 @@
-{ config, pkgs, config: userConfig, lib, ... }:
+{ config, pkgs, userConfig, lib, ... }:
 
 {
   # Development tools and environments
@@ -75,146 +75,147 @@
     ++ lib.optionals userConfig.features.docker [
       docker
       docker-compose
-    ];
+    ]
     
     # Language servers for editors
-    python3Packages.python-lsp-server
-    nodePackages.typescript-language-server
-    nodePackages.pyright
-    gopls
-    rust-analyzer
-    
-    # Databases
-    postgresql
-    mysql80
-    sqlite
-    redis
-    mongodb
-    
-    # Database tools
-    dbeaver
-    pgadmin4
-    
-    # Version control
-    git
-    git-lfs
-    gitui
-    lazygit
-    gh # GitHub CLI
-    
-    # Build tools
-    cmake
-    make
-    meson
-    ninja
-    
-    # Package managers
-    poetry
-    pipenv
-    
-    # API tools
-    postman
-    insomnia
-    
-    # Documentation
-    zeal
-    
-    # Containers
-    docker
-    docker-compose
-    podman
-    podman-compose
-    
-    # Kubernetes
-    kubectl
-    k9s
-    helm
-    
-    # Cloud tools
-    awscli2
-    google-cloud-sdk
-    azure-cli
-    
-    # Infrastructure as Code
-    terraform
-    ansible
-    
-    # Monitoring
-    prometheus
-    grafana
-    
-    # Text processing
-    jq
-    yq
-    
-    # HTTP clients
-    curl
-    wget
-    httpie
-    
-    # Development utilities
-    tmux
-    screen
-    
-    # Code analysis
-    shellcheck
-    
-    # Testing tools
-    selenium-server-standalone
-    
-    # Network tools
-    wireshark
-    nmap
-    
-    # Performance tools
-    hyperfine
-    
-    # Linters and formatters
-    black
-    isort
-    flake8
-    prettier
-    eslint
-    
-    # Documentation generators
-    sphinx
-    mkdocs
-    
-    # Protobuf
-    protobuf
-    
-    # gRPC tools
-    grpcurl
-    
-    # Message queues
-    rabbitmq-server
-    
-    # Search engines
-    elasticsearch
-    
-    # Reverse engineering
-    ghidra
-    radare2
-    
-    # Binary analysis
-    binwalk
-    
-    # Hex editors
-    hexedit
-    
-    # Debuggers
-    gdb
-    lldb
-    
-    # Profilers
-    valgrind
-    
-    # Static analysis
-    cppcheck
-    
-    # Cross-compilation
-    crossPlatformPackages.buildPackages.gcc
-  ];
+    ++ [
+      python3Packages.python-lsp-server
+      nodePackages.typescript-language-server
+      nodePackages.pyright
+      gopls
+      rust-analyzer
+      
+      # Databases
+      postgresql
+      mysql80
+      sqlite
+      redis
+      mongodb
+      
+      # Database tools
+      dbeaver
+      pgadmin4
+      
+      # Version control
+      git
+      git-lfs
+      gitui
+      lazygit
+      gh # GitHub CLI
+      
+      # Build tools
+      cmake
+      make
+      meson
+      ninja
+      
+      # Package managers
+      poetry
+      pipenv
+      
+      # API tools
+      postman
+      insomnia
+      
+      # Documentation
+      zeal
+      
+      # Containers
+      docker
+      docker-compose
+      podman
+      podman-compose
+      
+      # Kubernetes
+      kubectl
+      k9s
+      helm
+      
+      # Cloud tools
+      awscli2
+      google-cloud-sdk
+      azure-cli
+      
+      # Infrastructure as Code
+      terraform
+      ansible
+      
+      # Monitoring
+      prometheus
+      grafana
+      
+      # Text processing
+      jq
+      yq
+      
+      # HTTP clients
+      curl
+      wget
+      httpie
+      
+      # Development utilities
+      tmux
+      screen
+      
+      # Code analysis
+      shellcheck
+      
+      # Testing tools
+      selenium-server-standalone
+      
+      # Network tools
+      wireshark
+      nmap
+      
+      # Performance tools
+      hyperfine
+      
+      # Linters and formatters
+      black
+      isort
+      flake8
+      prettier
+      eslint
+      
+      # Documentation generators
+      sphinx
+      mkdocs
+      
+      # Protobuf
+      protobuf
+      
+      # gRPC tools
+      grpcurl
+      
+      # Message queues
+      rabbitmq-server
+      
+      # Search engines
+      elasticsearch
+      
+      # Reverse engineering
+      ghidra
+      radare2
+      
+      # Binary analysis
+      binwalk
+      
+      # Hex editors
+      hexedit
+      
+      # Debuggers
+      gdb
+      lldb
+      
+      # Profilers
+      valgrind
+      
+      # Static analysis
+      cppcheck
+      
+      # Cross-compilation
+      # crossPlatformPackages.buildPackages.gcc  # Comment out problematic package
+    ];
 
   # Services for development (only enabled if development is enabled)
   services = lib.mkIf userConfig.development.enable {
@@ -309,32 +310,5 @@
     # Common development tasks
     serve = "python3 -m http.server 8000";
     json = "python3 -m json.tool";
-  };
-
-  # Virtualization for development
-  virtualisation = {
-    docker.enable = true;
-    libvirtd.enable = true;
-    
-    # VMware if needed
-    # vmware.host.enable = true;
-    
-    # VirtualBox if needed
-    # virtualbox.host.enable = true;
-  };
-
-  # Programs for development
-  programs = {
-    # Enable Java
-    java = {
-      enable = true;
-      package = pkgs.openjdk;
-    };
-    
-    # Enable Steam for game development
-    steam.enable = true;
-    
-    # Enable ADB for Android development
-    adb.enable = true;
   };
 }
