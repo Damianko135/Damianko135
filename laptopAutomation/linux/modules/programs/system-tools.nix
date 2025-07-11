@@ -148,16 +148,19 @@
     
     # Power management
     power-profiles-daemon.enable = true;
-    
+  };
+
+  # Nix configuration (moved outside services block)
+  nix = {
     # Automatic garbage collection
-    nix.gc = {
+    gc = {
       automatic = true;
       dates = "weekly";
       options = "--delete-older-than 7d";
     };
     
     # Optimize Nix store
-    nix.optimise = {
+    optimise = {
       automatic = true;
       dates = [ "03:45" ];
     };

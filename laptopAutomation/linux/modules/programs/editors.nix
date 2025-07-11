@@ -18,8 +18,7 @@
     gedit
     mousepad
     
-    # Development tools
-    git
+    # Development tools (git managed by development.nix)
     gitui
     lazygit
     
@@ -33,16 +32,13 @@
     tldr
   ];
 
-  # Vim configuration
-  programs.vim = {
-    enable = true;
-    defaultEditor = true;
-  };
+  # Vim configuration - install via systemPackages instead
+  # Note: programs.vim.enable doesn't exist in newer NixOS versions
 
   # Neovim configuration
   programs.neovim = {
     enable = true;
-    defaultEditor = false; # Set to true if you prefer neovim over vim
+    defaultEditor = true; # Set neovim as default editor
     viAlias = true;
     vimAlias = true;
     
@@ -87,5 +83,11 @@
         ];
       };
     };
+  };
+
+  # Set environment variable for default editor
+  environment.variables = {
+    EDITOR = "nvim";
+    VISUAL = "nvim";
   };
 }

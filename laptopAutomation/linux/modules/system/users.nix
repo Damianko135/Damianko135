@@ -49,9 +49,9 @@
   # Enable ZSH system-wide
   programs.zsh.enable = true;
   
-  # Environment variables
+  # Environment variables (EDITOR managed by editors.nix)
   environment.variables = {
-    EDITOR = "vim";
+    # EDITOR = "vim";  # Commented to avoid conflict with editors.nix
     BROWSER = "firefox";
   };
 }

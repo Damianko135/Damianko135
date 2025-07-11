@@ -91,9 +91,9 @@
 
   # ─── System Environment ───────────────────────────────────────────────
   environment = {
-    # Global environment variables
+    # Global environment variables (EDITOR managed by editors.nix)
     variables = {
-      EDITOR = lib.mkDefault "vim";
+      # EDITOR = lib.mkDefault "vim";  # Commented - managed by editors.nix
       BROWSER = lib.mkDefault "firefox";
       TERMINAL = lib.mkDefault "alacritty";
     };
@@ -167,6 +167,9 @@
     cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
     cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
     
+    # Disable PulseAudio (we use PipeWire instead)
+    pulseaudio.enable = false;
+    
     # Graphics support
     opengl = {
       enable = true;
@@ -192,10 +195,7 @@
       jack.enable = true;
     };
     
-    # Disable old sound systems
-    pulseaudio.enable = false;
-    
-    # Enable D-Bus
+    # D-Bus and other services
     dbus.enable = true;
     
     # Enable udev for device management

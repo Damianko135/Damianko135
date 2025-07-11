@@ -10,7 +10,7 @@
     
     # Desktop environment - choose one
     desktopManager.gnome.enable = true;
-    # desktopManager.plasma5.enable = true;
+    # desktopManager.plasma6.enable = true;  # Updated from plasma5
     # desktopManager.xfce.enable = true;
     # desktopManager.mate.enable = true;
     
@@ -41,12 +41,12 @@
       liberation_ttf
       fira-code
       fira-code-symbols
-      mplus-outline-fonts.githubRelease
+      # mplus-outline-fonts.githubRelease  # Comment out if causing issues
       dina-font
       proggyfonts
       font-awesome
       powerline-fonts
-      nerdfonts
+      (nerdfonts.override { fonts = [ "FiraCode" "DejaVuSansMono" ]; })
     ];
     
     fontconfig = {

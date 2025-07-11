@@ -80,21 +80,19 @@
     # Language servers for editors
     ++ [
       python3Packages.python-lsp-server
-      nodePackages.typescript-language-server
-      nodePackages.pyright
       gopls
       rust-analyzer
       
       # Databases
       postgresql
-      mysql80
+      mysql
       sqlite
       redis
-      mongodb
+      # mongodb  # Comment out if causing issues
       
       # Database tools
-      dbeaver
-      pgadmin4
+      # dbeaver    # Comment out if causing issues - GUI app
+      # pgadmin4   # Comment out if causing issues - GUI app
       
       # Version control
       git
@@ -114,8 +112,8 @@
       pipenv
       
       # API tools
-      postman
-      insomnia
+      # postman     # Comment out if causing issues - GUI app
+      # insomnia    # Comment out if causing issues - GUI app
       
       # Documentation
       zeal
@@ -133,23 +131,23 @@
       
       # Cloud tools
       awscli2
-      google-cloud-sdk
-      azure-cli
+      # google-cloud-sdk  # Comment out if causing issues
+      # azure-cli         # Comment out if causing issues
       
       # Infrastructure as Code
       terraform
       ansible
       
       # Monitoring
-      prometheus
-      grafana
+      # prometheus  # Comment out if causing issues - service
+      # grafana     # Comment out if causing issues - service
       
       # Text processing
       jq
       yq
       
-      # HTTP clients
-      curl
+      # HTTP clients (curl duplicate removed)
+      # curl    # Duplicate - defined earlier in base packages
       wget
       httpie
       
@@ -161,7 +159,7 @@
       shellcheck
       
       # Testing tools
-      selenium-server-standalone
+      # selenium-server-standalone  # Comment out if causing issues
       
       # Network tools
       wireshark
@@ -188,13 +186,13 @@
       grpcurl
       
       # Message queues
-      rabbitmq-server
+      # rabbitmq-server  # Comment out if causing issues - service
       
       # Search engines
-      elasticsearch
+      # elasticsearch    # Comment out if causing issues - service
       
       # Reverse engineering
-      ghidra
+      # ghidra          # Comment out if causing issues - large GUI app
       radare2
       
       # Binary analysis
@@ -219,7 +217,11 @@
 
   # Services for development (only enabled if development is enabled)
   services = lib.mkIf userConfig.development.enable {
-    # Docker
+    # Development services can go here (not Docker)
+  };
+
+  # Virtualization for development
+  virtualisation = lib.mkIf userConfig.development.enable {
     docker = lib.mkIf userConfig.features.docker {
       enable = true;
       enableOnBoot = true;
@@ -228,11 +230,6 @@
         dates = "weekly";
       };
     };
-  };
-
-  # Virtualization for development
-  virtualisation = lib.mkIf userConfig.development.enable {
-    docker.enable = lib.mkIf userConfig.features.docker true;
     libvirtd.enable = lib.mkIf userConfig.features.virtualization true;
   };
 
@@ -248,9 +245,9 @@
     adb.enable = lib.mkIf (lib.elem "android" userConfig.development.languages) true;
   };
 
-  # Development environment variables
+  # Development environment variables (EDITOR managed by editors.nix)
   environment.variables = {
-    EDITOR = "vim";
+    # EDITOR = "vim";  # Commented to avoid conflict with editors.nix
     BROWSER = "firefox";
     TERMINAL = "gnome-terminal";
     
@@ -275,19 +272,9 @@
     DOCKER_HOST = "unix:///var/run/docker.sock";
   };
 
-  # Shell aliases for development
+  # Shell aliases for development - avoiding duplicates with shell.nix
   environment.shellAliases = {
-    # Git shortcuts
-    gs = "git status";
-    ga = "git add";
-    gc = "git commit";
-    gp = "git push";
-    gl = "git log --oneline";
-    gd = "git diff";
-    gb = "git branch";
-    gco = "git checkout";
-    
-    # Docker shortcuts
+    # Docker shortcuts (development-specific)
     d = "docker";
     dc = "docker-compose";
     dps = "docker ps";

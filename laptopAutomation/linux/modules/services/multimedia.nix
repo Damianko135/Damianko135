@@ -583,8 +583,8 @@
     # API development
     postman
     
-    # Version control
-    git
+    # Version control (git managed by development.nix)
+    # git
     
     # Code editors
     vscode
@@ -2248,10 +2248,10 @@
     # Audio
     PULSE_RUNTIME_PATH = "/run/user/1000/pulse";
     
-    # Multimedia applications
+    # Multimedia applications (EDITOR managed by editors.nix)
     BROWSER = "firefox";
     PLAYER = "mpv";
-    EDITOR = "vim";
+    # EDITOR = "vim";  # Commented to avoid conflict
   };
 
   # Gaming support

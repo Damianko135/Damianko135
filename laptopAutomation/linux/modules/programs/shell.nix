@@ -40,11 +40,11 @@
     unzip
     zip
     p7zip
-    rar
+    # rar    # Comment out if causing issues (unfree license)
     
-    # Network tools
+    # Network tools (curl managed by system packages)
     wget
-    curl
+    # curl     # Managed by system packages
     aria2
     
     # System information
@@ -116,7 +116,7 @@
     # Bash configuration
     bash = {
       enable = true;
-      completion.enable = true;
+      enableCompletion = true;
     };
     
     # Starship prompt
