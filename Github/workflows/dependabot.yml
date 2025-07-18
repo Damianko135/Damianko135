@@ -1,0 +1,47 @@
+name: Auto Merge Dependabot PRs
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+
+    if: |
+      github.actor == 'dependabot[bot]' &&
+      github.event.pull_request.mergeable == true &&
+      startsWith(github.event.pull_request.title, 'Bump') &&
+      contains(github.event.pull_request.labels.*.name, 'dependabot-auto-merge')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Validate PR is up-to-date with base branch
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git checkout ${{ github.event.pull_request.head.ref }}
+          git merge --no-edit origin/${{ github.event.pull_request.base.ref }}
+
+      - name: Set up Git user
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Merge Dependabot PR
+        run: |
+          git fetch origin +refs/pull/${{ github.event.pull_request.number }}/merge
+          git checkout -qf FETCH_HEAD
+          git merge --no-ff -m "Merge Dependabot PR #${{ github.event.pull_request.number }}"
+          git push origin HEAD:${{ github.event.pull_request.base.ref }}
+
+      - name: Post Success Message
+        run: echo "Dependabot PR #${{ github.event.pull_request.number }} merged successfully."

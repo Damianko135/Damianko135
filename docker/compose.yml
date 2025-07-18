@@ -1,0 +1,138 @@
+services:
+  reverse-proxy:
+    image: traefik:v3.0
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.lets-encrypt.acme.email=${ADMIN_EMAIL:-admin@example.com}"
+      - "--certificatesresolvers.lets-encrypt.acme.storage=/certs/acme.json"
+      - "--certificatesresolvers.lets-encrypt.acme.tlschallenge=true"
+      - "--log.level=${LOG_LEVEL:-INFO}"
+      - "--accesslog=true"
+      - "--metrics.prometheus=true"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.dkorver.dk`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=lets-encrypt"
+      - "traefik.http.routers.dashboard.middlewares=auth,secHeaders"
+      - "traefik.http.middlewares.auth.basicauth.users=${ADMIN_LOGIN}"
+      - "traefik.http.middlewares.secHeaders.headers.frameDeny=true"
+      - "traefik.http.middlewares.secHeaders.headers.sslRedirect=true"
+      - "traefik.http.middlewares.secHeaders.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.secHeaders.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.secHeaders.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.secHeaders.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.secHeaders.headers.stsPreload=true"
+      - "traefik.http.middlewares.secHeaders.headers.stsSeconds=31536000"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "certs:/certs"
+    restart: unless-stopped
+    networks:
+      - backend
+      - frontend
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  portfolio:
+    image: damianko135/portfolio:latest
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portfolio.rule=Host(`dkorver.dk`)"
+      - "traefik.http.routers.portfolio.entrypoints=websecure"
+      - "traefik.http.routers.portfolio.tls=true"
+      - "traefik.http.routers.portfolio.tls.certresolver=lets-encrypt"
+      - "traefik.http.routers.portfolio.middlewares=secHeaders"
+      - "traefik.http.services.portfolio.loadbalancer.server.port=4173"
+    networks:
+      - frontend
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  # Keep everything up to date
+  watchtower:
+    image: containrrr/watchtower:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - "--cleanup"
+      - "--rolling-restart"
+      - "--interval"
+      - "86400"  # Once daily instead of every 30 seconds
+      - "--notification-url=${WATCHTOWER_NOTIFICATION_URL:-}"
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Portainer - Container Management UI
+  portainer:
+    image: portainer/portainer-ce:latest
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.dkorver.dk`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.tls.certresolver=lets-encrypt"
+      - "traefik.http.routers.portainer.middlewares=secHeaders"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer_data:/data
+    networks:
+      - frontend
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  certs:
+    driver: local
+  portainer_data:
+    driver: local
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true

@@ -1,0 +1,31 @@
+version: 2
+updates:
+  # Update dependencies for pnpm
+  - package-ecosystem: "npm"
+    directory: "/" # Root directory for package.json
+    schedule:
+      interval: "weekly" # Check for updates weekly
+    registries:
+      - pnpm
+    labels:
+      - "pnpm-dependencies"
+      - "dependabot-auto-merge"
+
+  # Update dependencies for npm
+  - package-ecosystem: "npm"
+    directory: "/" # Root directory for package.json
+    schedule:
+      interval: "weekly" # Check for updates weekly
+
+    labels:
+      - "npm-dependencies"
+      - "dependabot-auto-merge"
+
+  # Update GitHub Actions workflows << BEST PRACTICE
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly" # Update GitHub Actions dependencies monthly
+    labels:
+      - "ci-dependencies"
+      - "dependabot-auto-merge"

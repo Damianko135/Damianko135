@@ -1,0 +1,16 @@
+# Build directories
+build/
+main_out/
+
+# Code editors
+.vscode/
+.idea/
+
+
+!laptopAutomation/windows/*.ps1
+!laptopAutomation/windows/*.json
+!laptopAutomation/windows/*.xml
+**/venv
+
+.env
+.metrics/*

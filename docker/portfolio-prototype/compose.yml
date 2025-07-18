@@ -1,0 +1,22 @@
+services:
+  portfolio-prototype:
+    image: damianko135/portfolio-prototype:latest
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portfolio-prototype.rule=Host(`portfolio.dkorver.dk`)"
+      - "traefik.http.routers.portfolio-prototype.entrypoints=websecure"
+      - "traefik.http.routers.portfolio-prototype.tls=true"
+      - "traefik.http.routers.portfolio-prototype.tls.certresolver=lets-encrypt"
+      # Change to the port the image is going to be using:
+      - "traefik.http.services.portfolio-prototype.loadbalancer.server.port=4173"
+    networks:
+      - frontend
+    deploy:
+      mode: replicated
+      replicas: 2
+
+networks:
+  frontend:
+    external: true
+    name: frontend

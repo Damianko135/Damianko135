@@ -1,0 +1,79 @@
+version: "3.8"
+
+services:
+  portfolio:
+    image: damianko135/links:latest
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portfolio.rule=Host(`link.dkorver.dk`)"
+      - "traefik.http.routers.portfolio.entrypoints=websecure"
+      - "traefik.http.routers.portfolio.tls=true"
+      - "traefik.http.routers.portfolio.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.portfolio.loadbalancer.server.port=80"
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - ./sql:/var/www/sql
+    environment:
+      - DB_HOST=${DB_HOST:-mysql}
+      - DB_PASS=${MYSQL_PASSWORD:-portfolio}
+      - DB_USER=${MYSQL_USER:-portfolio}
+      - DB_NAME=${MYSQL_DATABASE:-portfolio}
+    deploy:
+      mode: replicated
+      replicas: 2
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-portfolio}
+      MYSQL_USER: ${MYSQL_USER:-portfolio}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-portfolio}
+      MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD:-no}
+    volumes:
+      - database_first_project:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+    networks:
+      - backend
+    depends_on:
+      - portfolio
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.dkorver.dk`)"
+      - "traefik.http.routers.phpmyadmin.entrypoints=websecure"
+      - "traefik.http.routers.phpmyadmin.tls=true"
+      - "traefik.http.routers.phpmyadmin.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
+    environment:
+      - PMA_HOST=${DB_HOST:-mysql}
+      - PMA_USER=${MYSQL_USER:-portfolio}
+      - PMA_PASSWORD=${MYSQL_PASSWORD:-portfolio}
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - mysql
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: false
+
+volumes:
+  database_first_project:

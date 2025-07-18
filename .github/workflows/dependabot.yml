@@ -1,0 +1,94 @@
+name: Auto Merge Dependabot PRs
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' && startsWith(github.event.pull_request.title, 'Bump') }}
+    
+    steps:
+      - name: Check for dependabot-auto-merge label
+        id: label-check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+            if (!labels.includes('dependabot-auto-merge')) {
+              core.setFailed('PR does not have the dependabot-auto-merge label.');
+            }
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait for CI checks
+        uses: fountainhead/action-wait-for-check@v1.2.0
+        id: wait-for-ci
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: "ci"
+          ref: ${{ github.event.pull_request.head.sha }}
+          timeoutSeconds: 600
+          intervalSeconds: 30
+
+      - name: Validate PR status
+        run: |
+          echo "PR Number: ${{ github.event.pull_request.number }}"
+          echo "PR Title: ${{ github.event.pull_request.title }}"
+          echo "PR Labels: ${{ join(github.event.pull_request.labels.*.name, ', ') }}"
+          echo "PR State: ${{ github.event.pull_request.state }}"
+          echo "PR Mergeable: ${{ github.event.pull_request.mergeable }}"
+
+      - name: Validate PR is up-to-date
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git checkout ${{ github.event.pull_request.head.ref }}
+          
+          # Check if we can merge without conflicts
+          if ! git merge --no-commit --no-ff origin/${{ github.event.pull_request.base.ref }}; then
+            echo "❌ Merge conflicts detected. Manual intervention required."
+            exit 1
+          fi
+          
+          # Reset the merge attempt
+          git merge --abort || true
+
+      - name: Enable auto-merge
+        run: |
+          gh pr merge --auto --merge "$PR_URL" --delete-branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+
+      - name: Add comment on success
+        if: success()
+        run: |
+          gh pr comment "$PR_URL" --body "✅ Dependabot PR auto-merged successfully!"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+
+      - name: Add comment on failure
+        if: failure()
+        run: |
+          gh pr comment "$PR_URL" --body "❌ Auto-merge failed. Please review manually."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+
+      - name: Post completion message
+        run: |
+          echo "✅ Dependabot PR #${{ github.event.pull_request.number }} processed successfully."

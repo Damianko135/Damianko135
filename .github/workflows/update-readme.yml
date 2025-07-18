@@ -1,0 +1,177 @@
+name: Update Profile README
+
+on:
+  schedule:
+    - cron: "0 0 * * 0" # Sunday at 00:00 UTC
+  workflow_dispatch:
+
+jobs:
+  github-metrics:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Language Metrics
+      - name: Generate Language Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: .metrics/metrics-languages.svg
+          config_order: languages
+          plugin_languages: yes
+          plugin_languages_sections: most-used,recently-used
+          plugin_languages_recent_load: 300
+          plugin_languages_recent_days: 14
+          plugin_languages_limit: 8
+          plugin_languages_other: yes
+          plugin_languages_colors: github
+          plugin_languages_details: percentage
+          plugin_languages_threshold: 2%
+
+      # Repository Metrics
+      - name: Generate Repository Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: .metrics/metrics-repositories.svg
+          config_order: repositories
+          plugin_repositories: yes
+          plugin_repositories_pinned: 6
+          plugin_repositories_featured: Damianko135/Damianko135
+          plugin_repositories_starred: 10
+          plugin_repositories_random: 5
+          plugin_repositories_forks: yes
+
+      # Contribution Metrics
+      - name: Generate Contribution Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: .metrics/metrics-contributions.svg
+          config_order: contributors
+          plugin_contributors: yes
+          plugin_contributors_sections: commits,issues,pull-requests,reviews
+
+      # Activity Metrics
+      - name: Generate Activity Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: .metrics/metrics-activity.svg
+          config_order: activity
+          plugin_activity: yes
+          plugin_activity_limit: 5
+          plugin_activity_days: 14
+          plugin_activity_visibility: public
+          plugin_activity_timestamps: yes
+
+      # Achievements Metrics
+      - name: Generate Achievements Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: .metrics/metrics-achievements.svg
+          config_order: achievements
+          plugin_achievements: yes
+          plugin_achievements_display: detailed
+          plugin_achievements_threshold: B
+
+      # Notable Contributions Metrics
+      - name: Generate Notable Contributions Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: .metrics/metrics-notable.svg
+          config_order: notable
+          plugin_notable: yes
+          plugin_notable_filter: stars:>100 forks:>50
+
+      # Stargazers Metrics
+      - name: Generate Stargazers Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: .metrics/metrics-stargazers.svg
+          config_order: stargazers
+          plugin_stargazers: yes
+          plugin_stargazers_charts: yes
+
+      # Topics Metrics
+      - name: Generate Topics Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: .metrics/metrics-topics.svg
+          config_order: topics
+          plugin_topics: yes
+          plugin_topics_mode: mastered
+
+      # Gists Metrics
+      - name: Generate Gists Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: .metrics/metrics-gists.svg
+          config_order: gists
+          plugin_gists: yes
+
+      # Projects Metrics
+      - name: Generate Projects Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: .metrics/metrics-projects.svg
+          config_order: projects
+          plugin_projects: yes
+          plugin_projects_limit: 4
+
+      # Habits & Isocalendar Metrics (keep as one for now)
+      - name: Generate Habits & Isocalendar Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: .metrics/metrics-habits-isocalendar.svg
+          config_order: isocalendar,habits
+          plugin_isocalendar: yes
+          plugin_isocalendar_duration: full-year
+          plugin_habits: yes
+          plugin_habits_from: 100
+          plugin_habits_days: 14
+          plugin_habits_facts: yes
+          plugin_habits_charts: yes
+          plugin_habits_charts_type: classic
+
+      # Commit and push changes
+      - name: Commit and Push Metrics
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: "📊 Update README metrics"
+          file_pattern: ".metrics/*.svg"
+
+  generate-snake:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate Snake Animation
+        uses: Platane/snk/svg-only@v3
+        with:
+          github_user_name: Damianko135
+          outputs: |
+            dist/github-contribution-grid-snake.svg
+            dist/github-contribution-grid-snake-dark.svg?palette=github-dark
+
+      - name: Push Snake Animation
+        uses: crazy-max/ghaction-github-pages@v3
+        with:
+          target_branch: output
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,110 @@
+name: Update Profile README
+
+on:
+  schedule:
+    - cron: "0 0 * * 0" # Sunday at 00:00 UTC
+  workflow_dispatch:
+
+jobs:
+  github-metrics:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate Language and Repository Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: |
+            .metrics/metrics-languages.svg,
+            .metrics/metrics-repositories.svg
+          base: ""
+          config_order: languages,repositories
+          plugin_languages: yes
+          plugin_languages_sections: most-used,recently-used
+          plugin_languages_recent_load: 300         # Reduced for speed
+          plugin_languages_recent_days: 14
+          plugin_languages_limit: 8
+          plugin_languages_other: yes
+          plugin_languages_colors: github
+          plugin_languages_details: percentage
+          plugin_languages_threshold: 2%
+          plugin_repositories: yes
+          plugin_repositories_pinned: 6
+          plugin_repositories_featured: Damianko135/Damianko135
+          plugin_repositories_starred: 10
+          plugin_repositories_random: 5
+          plugin_repositories_forks: yes
+          repositories_batch: 10
+
+      - name: Generate Contribution and Activity Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: |
+            .metrics/metrics-contributions.svg,
+            .metrics/metrics-activity.svg
+          base: ""
+          config_order: contributors,activity
+          plugin_contributors: yes
+          plugin_contributors_sections: commits,issues,pull-requests,reviews
+          plugin_activity: yes
+          plugin_activity_limit: 5
+          plugin_activity_days: 14
+          plugin_activity_visibility: public
+          plugin_activity_timestamps: yes
+
+      - name: Generate Achievements and Additional Metrics
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.CLASSIC_TOKEN }}
+          filename: |
+            .metrics/metrics-achievements.svg,
+            .metrics/metrics-additional.svg
+          base: ""
+          config_order: achievements,isocalendar,habits
+          plugin_achievements: yes
+          plugin_achievements_display: detailed
+          plugin_achievements_threshold: B
+          plugin_isocalendar: yes
+          plugin_isocalendar_duration: full-year
+          plugin_habits: yes
+          plugin_habits_from: 100            # Reduced from 200 for speed
+          plugin_habits_days: 14
+          plugin_habits_facts: yes
+          plugin_habits_charts: yes
+          plugin_habits_charts_type: classic
+
+      - name: Commit and Push Metrics
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "📊 Update README metrics"
+          file_pattern: ".metrics/*.svg"
+
+  generate-snake:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate Snake Animation
+        uses: Platane/snk/svg-only@v3
+        with:
+          github_user_name: Damianko135
+          outputs: |
+            dist/github-contribution-grid-snake.svg
+            dist/github-contribution-grid-snake-dark.svg?palette=github-dark
+
+      - name: Push Snake Animation
+        uses: crazy-max/ghaction-github-pages@v3
+        with:
+          target_branch: output
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

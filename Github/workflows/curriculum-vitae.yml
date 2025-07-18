@@ -1,0 +1,34 @@
+name: Compile Curriculum Vitae PDFs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "curriculum-vitae/**/*.tex"
+      - "curriculum-vitae/**/*.bib"
+      - "curriculum-vitae/**/*.cls"
+      - "curriculum-vitae/**/*.sty"
+      - "curriculum-vitae/**/*.png"
+      - "curriculum-vitae/**/*.jpg"
+
+jobs:
+  compile-pdf:
+    name: Compile LaTeX PDFs
+    runs-on: ubuntu-latest
+    container: thomasweise/docker-texlive-full
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Compile CV and Resume
+        run: make
+
+      - name: Upload Compiled PDFs
+        uses: actions/upload-artifact@v4
+        with:
+          name: curriculum-vitae-pdfs
+          path: |
+            curriculum-vitae/*.pdf
+            curriculum-vitae/**/*.pdf
