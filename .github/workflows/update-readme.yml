@@ -17,7 +17,7 @@ jobs:
 
       # Language Metrics
       - name: Generate Language Metrics
-        uses: lowlighter/metrics@latest
+        uses: lowlighter/metrics@master
         with:
           token: ${{ secrets.CLASSIC_TOKEN }}
           filename: .metrics/metrics-languages.svg
@@ -34,7 +34,7 @@ jobs:
 
       # Repository Metrics
       - name: Generate Repository Metrics
-        uses: lowlighter/metrics@latest
+        uses: lowlighter/metrics@master
         with:
           token: ${{ secrets.CLASSIC_TOKEN }}
           filename: .metrics/metrics-repositories.svg
@@ -48,7 +48,7 @@ jobs:
 
       # Contribution Metrics
       - name: Generate Contribution Metrics
-        uses: lowlighter/metrics@latest
+        uses: lowlighter/metrics@master
         with:
           token: ${{ secrets.CLASSIC_TOKEN }}
           filename: .metrics/metrics-contributions.svg
@@ -58,7 +58,7 @@ jobs:
 
       # Activity Metrics
       - name: Generate Activity Metrics
-        uses: lowlighter/metrics@latest
+        uses: lowlighter/metrics@master
         with:
           token: ${{ secrets.CLASSIC_TOKEN }}
           filename: .metrics/metrics-activity.svg
@@ -71,7 +71,7 @@ jobs:
 
       # Achievements Metrics
       - name: Generate Achievements Metrics
-        uses: lowlighter/metrics@latest
+        uses: lowlighter/metrics@master
         with:
           token: ${{ secrets.CLASSIC_TOKEN }}
           filename: .metrics/metrics-achievements.svg
@@ -82,7 +82,7 @@ jobs:
 
       # Notable Contributions Metrics
       - name: Generate Notable Contributions Metrics
-        uses: lowlighter/metrics@latest
+        uses: lowlighter/metrics@master
         with:
           token: ${{ secrets.CLASSIC_TOKEN }}
           filename: .metrics/metrics-notable.svg
@@ -92,7 +92,7 @@ jobs:
 
       # Stargazers Metrics
       - name: Generate Stargazers Metrics
-        uses: lowlighter/metrics@latest
+        uses: lowlighter/metrics@master
         with:
           token: ${{ secrets.CLASSIC_TOKEN }}
           filename: .metrics/metrics-stargazers.svg
@@ -102,7 +102,7 @@ jobs:
 
       # Topics Metrics
       - name: Generate Topics Metrics
-        uses: lowlighter/metrics@latest
+        uses: lowlighter/metrics@master
         with:
           token: ${{ secrets.CLASSIC_TOKEN }}
           filename: .metrics/metrics-topics.svg
@@ -112,7 +112,7 @@ jobs:
 
       # Gists Metrics
       - name: Generate Gists Metrics
-        uses: lowlighter/metrics@latest
+        uses: lowlighter/metrics@master
         with:
           token: ${{ secrets.CLASSIC_TOKEN }}
           filename: .metrics/metrics-gists.svg
@@ -121,7 +121,7 @@ jobs:
 
       # Projects Metrics
       - name: Generate Projects Metrics
-        uses: lowlighter/metrics@latest
+        uses: lowlighter/metrics@master
         with:
           token: ${{ secrets.CLASSIC_TOKEN }}
           filename: .metrics/metrics-projects.svg
@@ -131,7 +131,7 @@ jobs:
 
       # Habits & Isocalendar Metrics (keep as one for now)
       - name: Generate Habits & Isocalendar Metrics
-        uses: lowlighter/metrics@latest
+        uses: lowlighter/metrics@master
         with:
           token: ${{ secrets.CLASSIC_TOKEN }}
           filename: .metrics/metrics-habits-isocalendar.svg
