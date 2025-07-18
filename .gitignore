@@ -13,4 +13,4 @@ main_out/
 **/venv
 
 .env
-.metrics/*
+.metrics/*.svg
