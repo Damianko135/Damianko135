@@ -1,246 +1,196 @@
-<!--
-  GitHub Profile README for Damian Korver (Damianko135)
-  Inline-styled metric cards for maximum GitHub compatibility (no <style> blocks).
-  Dark card color matches GitHub dark theme background (#0d1117).
--->
+# 🚀 Damianko135's Personal Repository
 
 <div align="center">
 
-<!-- Animated Header -->
+![Header](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=200&section=header&text=Welcome%20to%20My%20Digital%20Workspace&fontSize=32&fontColor=fff&animation=twinkling&fontAlignY=35)
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=180&section=header&text=Hi%20there,%20I'm%20Damian&fontSize=42&fontColor=fff&animation=twinkling&fontAlignY=32" width="100%" alt="Welcome Header" />
-
-<!-- Typing Animation -->
-
-<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=22&duration=3000&pause=1000&color=58A6FF&center=true&vCenter=true&width=600&lines=Full-Stack+Developer;Cybersecurity+Enthusiast;Linux+%26+Docker+Specialist;Open+Source+Contributor" alt="Typing Animation" />
+[![Profile Views](https://komarev.com/ghpvc/?username=Damianko135&style=for-the-badge&color=58A6FF&label=Repository+Views)](https://github.com/Damianko135)
+[![GitHub Stars](https://img.shields.io/github/stars/Damianko135?style=for-the-badge&color=58A6FF&labelColor=1c1917)](https://github.com/Damianko135)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 </div>
 
 ---
 
-## 🚀 About Me
+## 📋 Table of Contents
 
-<img align="right" src="https://media.giphy.com/media/SWoSkN6DxTszqIKEqv/giphy.gif" width="300" alt="Coding GIF" />
-
-I'm **Damian Korver**, an IT student at **HU University of Applied Sciences Utrecht**,
-focusing on cybersecurity, system administration, and cloud technologies.
-
-### 🎯 Interests
-
-* 🔐 Cybersecurity & Privacy
-* 🖥️ System Administration & Resilience
-* 🐧 Linux & Open-Source Customization
-* 🐋 Containerization & Orchestration
-* 💻 Full-Stack Development (Frontend ↔ Backend)
-* 📚 Continuous learning & self-improvement
-
-### 🏢 Current Roles
-
-* 🔄 Co-founder at [Tandem IT](https://github.com/TandemIT/) 
-<img src="https://avatars.githubusercontent.com/u/189765555?s=200&v=4" alt="Tandem" style="width:20px;height:20px;border-radius:50%;vertical-align:middle;transform:translatey(-5%)" />
-
-
-* 🌐 Self-hosting practitioner
-* 📚 Lifelong learner
+- [🎯 Overview](#-overview)
+- [📂 Repository Structure](#-repository-structure)
+- [🛠️ Quick Start](#️-quick-start)
+- [📚 Documentation](#-documentation)
+- [🤝 Contributing](#-contributing)
+- [📞 Contact](#-contact)
 
 ---
 
-## 📊 Social Stats
+## 🎯 Overview
 
-<div align="center">
-  <img src="https://komarev.com/ghpvc/?username=Damianko135&style=for-the-badge&color=58A6FF&label=Profile+Views" alt="Profile Views" />
-  <img src="https://img.shields.io/github/followers/Damianko135?style=for-the-badge&color=58A6FF&labelColor=1c1917" alt="GitHub Followers" />
-  <img src="https://img.shields.io/github/stars/Damianko135?style=for-the-badge&color=58A6FF&labelColor=1c1917" alt="GitHub Stars" />
-</div>
+> **"Automation, Configuration, and Innovation in One Place"**
 
----
+Welcome to my personal repository! This is a comprehensive collection of tools, configurations, and automation scripts that I use across my development workflow. From Dependabot configurations to Docker setups and laptop automation scripts, everything is organized and documented for easy reuse.
 
-## 🛠️ Tech Stack
+### 🌟 What You'll Find Here
 
-### 💻 Programming Languages
-
-<p align="center">
-  <img src="https://skillicons.dev/icons?perline=4&i=javascript,typescript,golang,bash,powershell,html,css,php&theme=dark" alt="Programming Languages" />
-</p>
-
-### 🎨 Frontend & Design
-
-<p align="center">
-  <img src="https://skillicons.dev/icons?perline=4&i=svelte,tailwind,css&theme=dark" alt="Frontend Technologies" />
-</p>
-
-### ⚙️ Backend & Database
-
-<p align="center">
-  <img src="https://skillicons.dev/icons?perline=4&i=golang,nodejs,express,mysql&theme=dark" alt="Backend Technologies" />
-</p>
-
-### 🔧 DevOps & Infrastructure
-
-<p align="center">
-  <img src="https://skillicons.dev/icons?perline=4&i=docker,kubernetes,linux,nginx,github,gitlab,ansible,terraform&theme=dark" alt="DevOps Tools" />
-</p>
-
-### 📦 Version Control
-
-<p align="center">
-  <img src="https://skillicons.dev/icons?perline=4&i=git,github,gitlab&theme=dark" alt="Version Control Systems" />
-</p>
-
-### 📋 Concepts & Methodologies
-
-<p align="center">
-  <img src="https://skillicons.dev/icons?perline=4&i=jira,githubactions,terraform&theme=dark" alt="Concepts Tools" />
-  <br><br>
-  <img src="https://img.shields.io/badge/Agile-Methodology-blue?style=for-the-badge" alt="Agile" />
-  <img src="https://img.shields.io/badge/Scrum-Framework-blue?style=for-the-badge" alt="Scrum" />
-  <img src="https://img.shields.io/badge/CI%2FCD-Pipeline-blue?style=for-the-badge" alt="CI/CD" />
-</p>
+- **🔄 Dependabot Configurations** - Automated dependency management templates
+- **🐋 Docker Compositions** - Multi-project containerization setups
+- **💻 Laptop Automation** - Cross-platform development environment setup
+- **⚙️ GitHub Workflows** - CI/CD pipelines and automation
+- **📊 Profile Management** - Dynamic GitHub profile generation
 
 ---
 
-## 📈 GitHub Analytics
+## 📂 Repository Structure
 
-<!-- Metric Cards: Stats | Top Langs | Streak -->
-
-<div align="center" style="display:flex; flex-wrap:wrap; justify-content:center; gap:15px; margin-top:15px;">
-  <div style="background:#0d1117; border-radius:12px; padding:10px; min-width:300px; max-width:480px; flex:1 1 300px;">
-    <img src="https://github-readme-stats.vercel.app/api?username=Damianko135&show_icons=true&theme=github_dark&include_all_commits=true&count_private=true&hide_border=true&bg_color=0d1117&title_color=58A6FF&icon_color=58A6FF&text_color=c9d1d9" alt="GitHub Stats" style="width:100%; height:auto;" />
-  </div>
-  <div style="background:#0d1117; border-radius:12px; padding:10px; min-width:300px; max-width:480px; flex:1 1 300px;">
-    <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=Damianko135&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58A6FF&text_color=c9d1d9" alt="Top Languages" style="width:100%; height:auto;" />
-  </div>
-  <div style="background:#0d1117; border-radius:12px; padding:10px; width:100%; max-width:980px; flex:1 1 100%;">
-    <img src="https://github-readme-streak-stats.herokuapp.com/?user=Damianko135&theme=github-dark-blue&hide_border=true&background=0d1117&stroke=58A6FF&ring=58A6FF&fire=58A6FF&currStreakLabel=58A6FF" alt="GitHub Streak" style="width:100%; height:auto;" />
-  </div>
-</div>
-
----
-
-
-## 🏆 GitHub Achievements & Insights
-
-<div align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=Damianko135&theme=algolia&no-frame=true&no-bg=true&margin-w=4&column=7" alt="GitHub Trophies" />
-</div>
-
-<!-- Modern GitHub Metrics Section -->
-## 📊 My GitHub Metrics
-
-<!-- Language and Repositories -->
-<p align="center">
-  <img src="./.metrics/metrics-languages.svg" width="49%"/>
-  <img src="./.metrics/metrics-repositories.svg" width="49%"/>
-</p>
-
-<!-- Contributions and Achievements -->
-<p align="center">
-  <img src="./.metrics/metrics-contributions.svg" width="49%"/>
-  <img src="./.metrics/metrics-achievements.svg" width="49%"/>
-</p>
-
-<!-- Activity and Habits -->
-<p align="center">
-  <img src="./.metrics/metrics-activity.svg" width="49%"/>
-  <img src="./.metrics/metrics-habits-isocalendar.svg" width="49%"/>
-</p>
-
-<!-- Notable, Stargazers, Topics, Gists, Projects -->
-<p align="center">
-  <img src="./.metrics/metrics-notable.svg" width="32%"/>
-  <img src="./.metrics/metrics-stargazers.svg" width="32%"/>
-  <img src="./.metrics/metrics-topics.svg" width="32%"/>
-</p>
-<p align="center">
-  <img src="./.metrics/metrics-gists.svg" width="49%"/>
-  <img src="./.metrics/metrics-projects.svg" width="49%"/>
-</p>
+```
+📦 Damianko135/
+├── 🔄 dependabot/           # Dependency management configurations
+│   ├── configs/             # Language-specific Dependabot configs
+│   ├── auto-merge/          # Auto-merge workflow templates
+│   └── README.md           # Comprehensive Dependabot guide
+├── 🐋 docker/              # Docker compositions and configurations
+│   ├── first-project/      # Initial project setup
+│   ├── groeneweide/        # Groeneweide project environment
+│   ├── portfolio-prototype/ # Portfolio development environment
+│   └── README.md           # Docker usage guide
+├── 💻 laptopAutomation/    # Development environment automation
+│   ├── windows/            # Windows setup scripts
+│   ├── linux/              # Linux setup scripts
+│   └── README.md           # Automation guide
+├── ⚙️ Github/              # GitHub workflows and configurations
+│   ├── workflows/          # Reusable workflow templates
+│   └── README.md           # Workflow documentation
+├── 📊 profile-readme/      # Dynamic GitHub profile
+│   └── README.md           # Profile template
+├── 📚 docs/                # Additional documentation
+└── 🎯 README.md            # This file
+```
 
 ---
 
-## 📚 Featured Projects
+## 🛠️ Quick Start
 
-<!-- Metric Card: Repo Highlights -->
+### Prerequisites
 
-<div align="center" style="background:#0d1117; border-radius:12px; padding:10px; margin:20px 0;">
-  <img src="./.metrics/metrics-repositories.svg" alt="Repository Highlights" style="width:100%; height:auto;" />
-</div>
+- **Git** - Version control
+- **Docker** - Containerization (optional)
+- **PowerShell** - For Windows automation
+- **Bash** - For Linux automation
 
-<!-- Pinned / Featured Project Cards -->
+### Getting Started
 
-<table align="center">
-  <tr>
-    <td align="center">
-      <img src="https://github-readme-stats.vercel.app/api/pin/?username=Damianko135&repo=portfolio-svelte&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58A6FF&text_color=c9d1d9" alt="portfolio-svelte" />
-    </td>
-    <td align="center">
-      <img src="https://github-readme-stats.vercel.app/api/pin/?username=Damianko135&repo=ansible-webapp&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58A6FF&text_color=c9d1d9" alt="ansible-webapp" />
-    </td>
-    <td align="center">
-      <img src="https://github-readme-stats.vercel.app/api/pin/?username=Damianko135&repo=go-certbot-clone&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58A6FF&text_color=c9d1d9" alt="go-certbot-clone" />
-    </td>
-  </tr>
-</table>
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Damianko135/Damianko135.git
+   cd Damianko135
+   ```
 
----
+2. **Choose your path**
+   - 🔄 **Dependabot Setup** → Navigate to [`dependabot/`](./dependabot/)
+   - 🐋 **Docker Environment** → Navigate to [`docker/`](./docker/)
+   - 💻 **Laptop Automation** → Navigate to [`laptopAutomation/`](./laptopAutomation/)
+   - ⚙️ **GitHub Workflows** → Navigate to [`Github/`](./Github/)
 
-## 🤝 Open Source Contributions
-
-<div align="center" style="background:#0d1117; border-radius:12px; padding:10px; margin:20px 0;">
-  <img src="./.metrics/metrics-contributions.svg" alt="Open Source Contributions" style="width:100%; height:auto;" />
-</div>
+3. **Follow the specific README** in each directory for detailed instructions
 
 ---
 
-## 📬 Connect With Me
+## 📚 Documentation
 
-<div align="center">
-  <a href="https://www.linkedin.com/in/dkorver/" target="_blank">
-    <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
-  </a>
-  <a href="https://github.com/Damianko135" target="_blank">
-    <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
-  </a>
-  <a href="https://github.com/TandemIT/" target="_blank">
-    <img src="https://img.shields.io/badge/Website-FF5722?style=for-the-badge&logo=firefox&logoColor=white" alt="Website" />
-  </a>
-</div>
+| Component | Description | Quick Link |
+|-----------|-------------|------------|
+| 🔄 **Dependabot** | Automated dependency management for multiple languages | [📖 Guide](./dependabot/README.md) |
+| 🐋 **Docker** | Multi-project containerization and development environments | [📖 Guide](./docker/README.md) |
+| 💻 **Automation** | Cross-platform laptop setup and configuration scripts | [📖 Guide](./laptopAutomation/README.md) |
+| ⚙️ **Workflows** | GitHub Actions templates and CI/CD pipelines | [📖 Guide](./Github/README.md) |
+| 📊 **Profile** | Dynamic GitHub profile with metrics and animations | [📖 Guide](./profile-readme/README.md) |
 
----
-
-## 💡 Fun Facts
+### 🎯 Featured Highlights
 
 <div align="center">
 
-  <img src="https://quotes-github-readme.vercel.app/api?type=horizontal&theme=dark&quote=The%20best%20way%20to%20predict%20the%20future%20is%20to%20create%20it&author=Peter%20Drucker" alt="Motivational Quote" />
-
-  <br><br>
-
-  <ul align="left">
-    <li>🔐 <b>Security-focused mindset</b></li>
-    <li>🌱 Always learning cybersecurity & cloud tech</li>
-    <li>🎯 Aspiring Certified Ethical Hacker</li>
-    <li>🚀 Passionate about cutting-edge tech</li>
-  </ul>
+| 🏆 **Most Popular** | 📈 **Recently Updated** | 🔥 **Most Useful** |
+|:---:|:---:|:---:|
+| Dependabot Configs | Docker Compositions | Laptop Automation |
+| ⭐ Easy Setup | 🚀 Multi-Project | 💻 Cross-Platform |
 
 </div>
+
+---
+
+## 🤝 Contributing
+
+I welcome contributions, suggestions, and feedback! Here's how you can help:
+
+### 🎯 Ways to Contribute
+
+- 🐛 **Report Issues** - Found a bug? Let me know!
+- 💡 **Suggest Features** - Have an idea? Share it!
+- 📝 **Improve Documentation** - Help make things clearer
+- 🔧 **Submit Pull Requests** - Code contributions welcome
+
+### 📋 Contribution Guidelines
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+For detailed guidelines, see [CONTRIBUTING.md](./CONTRIBUTING.md)
+
+---
+
+## 🏷️ Tags & Topics
+
+<div align="center">
+
+![Automation](https://img.shields.io/badge/Automation-FF6B6B?style=for-the-badge&logo=github-actions&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![DevOps](https://img.shields.io/badge/DevOps-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
+![Configuration](https://img.shields.io/badge/Configuration-4ECDC4?style=for-the-badge&logo=yaml&logoColor=white)
+
+</div>
+
+---
+
+## 📊 Repository Stats
+
+<div align="center">
+
+![Repository Stats](https://github-readme-stats.vercel.app/api?username=Damianko135&show_icons=true&theme=github_dark&include_all_commits=true&count_private=true&hide_border=true&bg_color=0d1117&title_color=58A6FF&icon_color=58A6FF&text_color=c9d1d9)
+
+</div>
+
+---
+
+## 📞 Contact
+
+<div align="center">
+
+**Let's Connect and Collaborate!**
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/dkorver/)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Damianko135)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:your-email@example.com)
+
+</div>
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 <div align="center">
 
-### 🎉 Thanks for visiting!
+### 🎉 Thanks for Visiting!
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=120&section=footer&animation=twinkling" width="100%" alt="Footer Wave" />
+![Footer](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=120&section=footer&animation=twinkling)
 
-<!-- Snake Animation -->
+**⭐ Star this repository if you find it useful!**
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/Damianko135/Damianko135/blob/output/github-contribution-grid-snake-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://github.com/Damianko135/Damianko135/blob/output/github-contribution-grid-snake.svg">
-  <img alt="GitHub Contribution Snake" src="https://github.com/Damianko135/Damianko135/blob/output/github-contribution-grid-snake.svg" />
-</picture>
-
-**⭐ Star my repositories if you find them useful!**
+*Made with ❤️ by [Damian Korver](https://github.com/Damianko135)*
 
 </div>

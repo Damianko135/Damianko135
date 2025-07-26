@@ -1,7 +1,7 @@
 ---
 # **Guide to Dependabot**
 
-## **What is Dependabot?**
+## **What is Depaendabot?**
 Dependabot is a GitHub-native tool that automatically keeps your dependencies up-to-date. It scans your project for outdated dependencies, security vulnerabilities, or configuration mismatches and raises pull requests (PRs) to update them. Dependabot supports a variety of ecosystems, including JavaScript (npm, Yarn), Python (pip, poetry), Ruby (Bundler), Docker, and more.
 ---
 
