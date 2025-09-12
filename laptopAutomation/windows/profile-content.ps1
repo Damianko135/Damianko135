@@ -32,4 +32,34 @@ function prompt {
     "$(Get-Location)> "
 }
 
+function go-init {
+    param(
+        [string]$Remote = "origin"
+    )
+
+    try {
+        $url = git remote get-url $Remote 2>$null
+    }
+    catch {
+        Write-Error "No such remote: $Remote"
+        return
+    }
+
+    # Normalize URL: handle both https and SSH
+    if ($url -match '^https://') {
+        $path = $url -replace '^https://', '' -replace '\.git$', ''
+    }
+    elseif ($url -match '^git@') {
+        $path = $url -replace '^git@', '' -replace ':', '/' -replace '\.git$', ''
+    }
+    else {
+        Write-Error "Unsupported remote URL format: $url"
+        return
+    }
+
+    go mod init $path
+}
+
+
+
 Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
