@@ -220,12 +220,12 @@ function Install-Packages {
         $currentPackage++
         $progressPercent = [math]::Round(($currentPackage / $totalPackages) * 100)
         
-        Write-Progress -Activity "Installing Packages" -Status "Processing $($package.Name) ($currentPackage of $totalPackages)" -PercentComplete $progressPercent
+        Write-Progress -Activity "Installing Packages" -Status "Processing $($package.Name) - $currentPackage of $totalPackages" -PercentComplete $progressPercent
         
         Write-Log "Processing package: $($package.Name)" White
         
         $installed = $false
-        $commandName = $package.command
+        $commandName = if ($package.PSObject.Properties['command']) { $package.command } else { $null }
         
         # Try Chocolatey first (primary package manager)
         if ($chocoAvailable -and $package.chocoId) {

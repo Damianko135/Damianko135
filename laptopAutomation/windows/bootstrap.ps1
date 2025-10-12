@@ -155,6 +155,8 @@ try {
     if ($Force) { $arguments += "-Force" }
     
     # Run the setup script
+    Push-Location $extractPath
+    try {
         if ($arguments.Count -gt 0) {
             & $setupScriptPath @arguments
         } else {
