@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 # Windows Laptop Automation Setup Script
 # Author: Damian Korver
-# Description: Modular setup script that installs packages and configures PowerShell profile
+# Description: Minimal setup script that installs packages and configures PowerShell profile
 
 #Requires -Version 5.1
 
@@ -9,72 +9,18 @@ param (
     [switch] $SkipPackages,
     [switch] $SkipProfile,
     [switch] $Force,
-    [switch] $SkipOffice,
-    [string] $ConfigProfile = "developer",
-    [switch] $RestrictedExecution,
-    [switch] $Interactive,
-    [switch] $TestInSandbox,
-    [switch] $WhatIf,
-    [switch] $EnableUpdateManagement,
-    [switch] $SkipWindowsUpdates,
-    [switch] $SkipPackageUpdates,
-    [switch] $SkipStoreUpdates,
-    [switch] $RebootIfRequired
+    [switch] $SkipOffice
 )
-
-# DEBUG: Script started
-Write-Host "DEBUG: Setup script started with WhatIf=$WhatIf" -ForegroundColor Yellow
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# Import modules
-$modulesPath = Join-Path $PSScriptRoot "modules"
-Import-Module (Join-Path $modulesPath "PackageInstaller.psm1")
-Import-Module (Join-Path $modulesPath "HardwareDetector.psm1")
-Import-Module (Join-Path $modulesPath "SecurityValidator.psm1")
-Import-Module (Join-Path $modulesPath "ProgressTracker.psm1")
-Import-Module (Join-Path $modulesPath "Windows11Optimizer.psm1")
-Import-Module (Join-Path $modulesPath "BackupRestore.psm1")
-Import-Module (Join-Path $modulesPath "InteractiveMode.psm1")
-Import-Module (Join-Path $modulesPath "PluginSystem.psm1")
-Import-Module (Join-Path $modulesPath "ContainerSupport.psm1")
-Import-Module (Join-Path $modulesPath "ComprehensiveLogging.psm1")
-Import-Module (Join-Path $modulesPath "PostInstallSummary.psm1")
-Import-Module (Join-Path $modulesPath "ComplianceSecurity.psm1")
-Import-Module (Join-Path $modulesPath "UpdateManagement.psm1")
-Import-Module (Join-Path $modulesPath "InventoryManagement.psm1")
-
-# Initialize comprehensive logging
-Initialize-Logging -Level "INFO" -ConsoleOutput -FileOutput -StructuredOutput
-
-# Backward compatibility function for modules that still use Write-Log
-function global:Write-Log {
-    param([string]$Message, [ConsoleColor]$Color = 'White')
-    $level = switch ($Color) {
-        'Red' { 'ERROR' }
-        'Yellow' { 'WARN' }
-        'Cyan' { 'INFO' }
-        'Green' { 'INFO' }
-        'Gray' { 'DEBUG' }
-        'White' { 'INFO' }
-        default { 'INFO' }
-    }
-    $category = 'Legacy'
-    
-    switch ($level) {
-        'ERROR' { Write-ErrorLog $Message -Category $category }
-        'WARN' { Write-WarnLog $Message -Category $category }
-        'DEBUG' { Write-DebugLog $Message -Category $category }
-        default { Write-InfoLog $Message -Category $category }
-    }
+# Logging function
+function Write-Log {
+    param([string]$Message, [ConsoleColor]$Color='White')
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    Write-Host "[$timestamp] $Message" -ForegroundColor $Color
 }
-
-# Initialize post-installation summary
-Initialize-PostInstallSummary -ProfileName $ConfigProfile
-
-# Set log file paths for summary (use default paths from logging module)
-Set-LogFilePaths -LogPath "$env:TEMP\WindowsAutomation.log" -StructuredLogPath "$env:TEMP\WindowsAutomation.json"
 
 # Check if running as administrator
 function Test-IsAdmin {
@@ -83,500 +29,205 @@ function Test-IsAdmin {
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
-# Setup PowerShell profile
-function Set-PowerShellProfile {
-    param([switch]$WhatIf)
-
-    $profilePath = $PROFILE
-    $profileContentPath = Join-Path $PSScriptRoot "profile-content.ps1"
-
-    if (-not (Test-Path $profileContentPath)) {
-        Write-ErrorLog "Profile content file not found: $profileContentPath" -Category "Profile"
-        return
+# Install Chocolatey if not present
+function Install-Chocolatey {
+    if (Get-Command choco -ErrorAction SilentlyContinue) {
+        Write-Log "Chocolatey is already installed" Green
+        return $true
     }
-
-    # Create profile directory if it doesn't exist
-    $profileDir = Split-Path $profilePath
-    if (-not (Test-Path $profileDir)) {
-        if ($WhatIf) {
-            Write-WarnLog "DRY RUN: Would create profile directory: $profileDir" -Category "Profile"
-        } else {
-            Write-InfoLog "Creating profile directory: $profileDir" -Category "Profile"
-            New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
-        }
-    }
-
+    
     try {
-        $profileContent = Get-Content $profileContentPath -Raw
-
-        if ($WhatIf) {
-            if ($Force -or -not (Test-Path $profilePath)) {
-                Write-WarnLog "DRY RUN: Would create/update PowerShell profile: $profilePath" -Category "Profile"
-            } else {
-                Write-WarnLog "DRY RUN: Profile already exists, would skip (use -Force to overwrite)" -Category "Profile"
-            }
+        Write-Log "Installing Chocolatey..." Cyan
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+        
+        # Refresh environment variables
+        $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
+        
+        if (Get-Command choco -ErrorAction SilentlyContinue) {
+            Write-Log "Chocolatey installed successfully" Green
+            return $true
         } else {
-            if ($Force -or -not (Test-Path $profilePath)) {
-                Write-InfoLog "Creating PowerShell profile: $profilePath" -Category "Profile"
-                $profileContent | Set-Content -Path $profilePath -Encoding UTF8
-                Write-InfoLog "PowerShell profile created successfully" -Category "Profile"
-                Add-ComponentConfiguration -ComponentName "PowerShell Profile" -Description "Custom PowerShell profile with enhanced functionality" -FilesModified @($profilePath) -Category "Shell"
-                Set-RestartRequired -Reason "PowerShell profile changes require session restart"
-            } else {
-                Write-WarnLog "Profile already exists. Use -Force to overwrite" -Category "Profile"
-            }
+            Write-Log "Chocolatey installation failed" Red
+            return $false
         }
     } catch {
-        Write-ErrorLog "Failed to setup PowerShell profile: $($_.Exception.Message)" -Category "Profile" -Context @{ Error = $_.Exception.Message; ProfilePath = $profilePath }
+        Write-Log "Failed to install Chocolatey: $($_.Exception.Message)" Red
+        return $false
+    }
+}
+
+# Check if WinGet is available
+function Test-WinGet {
+    try {
+        $null = Get-Command winget -ErrorAction Stop
+        return $true
+    } catch {
+        Write-Log "WinGet not available" Yellow
+        return $false
+    }
+}
+
+# Install package using Chocolatey
+function Install-ChocoPackage {
+    param([string]$PackageId, [string]$PackageName)
+    
+    try {
+        Write-Log "Installing $PackageName via Chocolatey..." Cyan
+        choco install $PackageId -y --no-progress
+        Write-Log "$PackageName installed successfully via Chocolatey" Green
+        return $true
+    } catch {
+        Write-Log "Failed to install $PackageName via Chocolatey: $($_.Exception.Message)" Red
+        return $false
+    }
+}
+
+# Install package using WinGet
+function Install-WinGetPackage {
+    param([string]$PackageId, [string]$PackageName)
+    
+    try {
+        Write-Log "Installing $PackageName via WinGet..." Cyan
+        winget install --id $PackageId --silent --accept-package-agreements --accept-source-agreements
+        Write-Log "$PackageName installed successfully via WinGet" Green
+        return $true
+    } catch {
+        Write-Log "Failed to install $PackageName via WinGet: $($_.Exception.Message)" Red
+        return $false
     }
 }
 
 # Install packages from JSON file
 function Install-Packages {
-    param([string]$PackageListPath, [switch]$WhatIf)
-
-    if (-not (Test-Path $PackageListPath)) {
-        Write-ErrorLog "Package list not found: $PackageListPath" -Category "Packages"
+    $packageListPath = Join-Path $PSScriptRoot "packageList.json"
+    
+    if (-not (Test-Path $packageListPath)) {
+        Write-Log "Package list not found: $packageListPath" Red
         return
     }
-
-    $packages = Get-Content $PackageListPath | ConvertFrom-Json
+    
+    $packages = Get-Content $packageListPath | ConvertFrom-Json
     $chocoAvailable = Get-Command choco -ErrorAction SilentlyContinue
     $wingetAvailable = Test-WinGet
-
-    Write-InfoLog "Found $($packages.Count) packages to install" -Category "Packages" -Context @{ PackageCount = $packages.Count }
-    Write-DebugLog "Chocolatey available: $($null -ne $chocoAvailable)" -Category "Packages"
-    Write-DebugLog "WinGet available: $wingetAvailable" -Category "Packages"
-
-    if ($WhatIf) {
-        Write-WarnLog "DRY RUN: Would install the following packages:" -Category "Packages"
-        foreach ($package in $packages) {
-            $packageManager = if ($chocoAvailable -and $package.chocoId) { "Chocolatey" } elseif ($wingetAvailable -and $package.wingetId) { "WinGet" } else { "None available" }
-            Write-DebugLog "  - $($package.Name) (via $packageManager)" -Category "Packages"
-        }
-        return
-    }
-
+    
+    Write-Log "Found $($packages.Count) packages to install" Cyan
+    Write-Log "Chocolatey available: $($chocoAvailable -ne $null)" Gray
+    Write-Log "WinGet available: $wingetAvailable" Gray
+    
     foreach ($package in $packages) {
-        Write-InfoLog "Processing package: $($package.Name)" -Category "Packages"
-
+        Write-Log "Processing package: $($package.Name)" White
+        
         $installed = $false
-
+        
         # Try Chocolatey first (primary package manager)
         if ($chocoAvailable -and $package.chocoId) {
             $installed = Install-ChocoPackage -PackageId $package.chocoId -PackageName $package.Name
-            if ($installed) {
-                Add-PackageInstallation -PackageName $package.Name -PackageManager "Chocolatey" -Category "Software"
-            }
         }
-
+        
         # Fallback to WinGet if Chocolatey failed or is not available
         if (-not $installed -and $wingetAvailable -and $package.wingetId) {
-            Write-WarnLog "Falling back to WinGet for $($package.Name)" -Category "Packages" -Context @{ PackageName = $package.Name; Manager = "WinGet" }
+            Write-Log "Falling back to WinGet for $($package.Name)" Yellow
             $installed = Install-WinGetPackage -PackageId $package.wingetId -PackageName $package.Name
-            if ($installed) {
-                Add-PackageInstallation -PackageName $package.Name -PackageManager "WinGet" -Category "Software"
-            }
         }
-
+        
         if (-not $installed) {
-            Write-ErrorLog "Failed to install $($package.Name) with any package manager" -Category "Packages" -Context @{ PackageName = $package.Name; ChocoId = $package.chocoId; WinGetId = $package.wingetId }
-            Add-PackageFailure -PackageName $package.Name -ErrorMessage "Failed to install with any available package manager" -Category "Software"
+            Write-Log "Failed to install $($package.Name) with any package manager" Red
         }
+        
+        Write-Host "" # Empty line for readability
     }
 }
 
-# Load configuration profile
-function Get-ConfigurationProfile {
-    param([string]$ProfileName)
-
-    $configPath = Join-Path $PSScriptRoot "configs\$ProfileName.json"
-
-    if (-not (Test-Path $configPath)) {
-        Write-ErrorLog "Configuration profile not found: $configPath" -Category "Configuration"
-        Write-WarnLog "Falling back to minimal profile" -Category "Configuration"
-        $configPath = Join-Path $PSScriptRoot "configs\minimal.json"
+# Setup PowerShell profile
+function Setup-PowerShellProfile {
+    $profilePath = $PROFILE
+    $profileContentPath = Join-Path $PSScriptRoot "profile-content.ps1"
+    
+    if (-not (Test-Path $profileContentPath)) {
+        Write-Log "Profile content file not found: $profileContentPath" Red
+        return
     }
-
+    
+    # Create profile directory if it doesn't exist
+    $profileDir = Split-Path $profilePath
+    if (-not (Test-Path $profileDir)) {
+        Write-Log "Creating profile directory: $profileDir" Cyan
+        New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
+    }
+    
     try {
-        $config = Get-Content $configPath | ConvertFrom-Json
-        Write-InfoLog "Loaded configuration profile: $($config.name)" -Category "Configuration" -Context @{ ProfileName = $config.name; ConfigPath = $configPath }
-        return $config
+        $profileContent = Get-Content $profileContentPath -Raw
+        
+        if ($Force -or -not (Test-Path $profilePath)) {
+            Write-Log "Creating PowerShell profile: $profilePath" Cyan
+            $profileContent | Set-Content -Path $profilePath -Encoding UTF8
+            Write-Log "PowerShell profile created successfully" Green
+        } else {
+            Write-Log "Profile already exists. Use -Force to overwrite" Yellow
+        }
     } catch {
-        Write-ErrorLog "Failed to load configuration profile: $($_.Exception.Message)" -Category "Configuration" -Context @{ ConfigPath = $configPath; Error = $_.Exception.Message }
-        return $null
+        Write-Log "Failed to setup PowerShell profile: $($_.Exception.Message)" Red
     }
-}
-
-# Secure credential handling for licensed software
-function Get-SecureCredential {
-    param([string]$CredentialName, [string]$PromptMessage = "Enter credentials")
-
-    $credFile = Join-Path $env:APPDATA "WindowsAutomation\$CredentialName.xml"
-
-    if (Test-Path $credFile) {
-        try {
-            $credential = Import-Clixml -Path $credFile
-            Write-InfoLog "Loaded stored credentials for $CredentialName" -Category "Credentials"
-            return $credential
-        } catch {
-            Write-ErrorLog "Failed to load stored credentials: $($_.Exception.Message)" -Category "Credentials" -Context @{ CredentialName = $CredentialName; Error = $_.Exception.Message }
-        }
-    }
-
-    Write-WarnLog "Prompting for credentials: $PromptMessage" -Category "Credentials"
-    $credential = Get-Credential -Message $PromptMessage
-
-    if ($credential) {
-        # Create directory if it doesn't exist
-        $credDir = Split-Path $credFile
-        if (-not (Test-Path $credDir)) {
-            New-Item -ItemType Directory -Path $credDir -Force | Out-Null
-        }
-
-        try {
-            $credential | Export-Clixml -Path $credFile
-            Write-InfoLog "Credentials stored securely for $CredentialName" -Category "Credentials" -Context @{ CredentialName = $CredentialName }
-        } catch {
-            Write-ErrorLog "Failed to store credentials: $($_.Exception.Message)" -Category "Credentials" -Context @{ CredentialName = $CredentialName; Error = $_.Exception.Message }
-        }
-    }
-
-    return $credential
 }
 
 # Main execution
-Write-InfoLog "Starting Windows Laptop Automation Setup" -Category "Setup"
-Write-DebugLog "Script location: $PSScriptRoot" -Category "Setup"
-Write-DebugLog "Configuration profile: $ConfigProfile" -Category "Setup"
-
-# Handle WhatIf mode
-if ($WhatIf) {
-    Write-WarnLog "DRY RUN MODE - No changes will be made to your system" -Category "Setup"
-    Write-WarnLog "This preview shows what would be installed and configured" -Category "Setup"
-}
-
-# Handle sandbox testing mode
-if ($TestInSandbox) {
-    Write-WarnLog "Sandbox testing mode enabled" -Category "Sandbox"
-
-    if (-not (Test-WindowsSandbox)) {
-        Write-ErrorLog "Windows Sandbox is not available. Cannot run in sandbox mode." -Category "Sandbox"
-        Write-WarnLog "Make sure Windows Sandbox is enabled in Windows Features." -Category "Sandbox"
-        exit 1
-    }
-
-    Write-InfoLog "Creating sandbox test configuration..." -Category "General"
-    $sandboxConfig = New-AutomationTestSandbox -ProjectPath $PSScriptRoot `
-                                             -ConfigProfile $ConfigProfile `
-                                             -EnableNetworking `
-                                             -SkipPackages:$SkipPackages `
-                                             -SkipProfile:$SkipProfile
-
-    if ($sandboxConfig) {
-        Write-InfoLog "Starting Windows Sandbox for testing..." -Category "General"
-        Write-WarnLog "The automation will run in the sandbox environment" -Category "General"
-        Write-InfoLog "Close the sandbox window when testing is complete" -Category "General"
-
-        Start-WindowsSandbox -ConfigPath $sandboxConfig -Wait
-
-        Write-InfoLog "Sandbox testing completed" -Category "General"
-        exit 0
-    } else {
-        Write-ErrorLog "Failed to create sandbox configuration" -Category "General"
-        exit 1
-    }
-}
-
-# Handle restricted execution policy
-if ($RestrictedExecution) {
-    Write-WarnLog "Running in restricted execution policy mode" -Category "General"
-    try {
-        Set-ExecutionPolicy -ExecutionPolicy Restricted -Scope Process -Force
-        Write-WarnLog "Execution policy temporarily set to Restricted" -Category "General"
-    } catch {
-        Write-ErrorLog "Failed to set restricted execution policy: $($_.Exception.Message)" -Category "General"
-    }
-}
-
-# Load configuration
-$config = if ($Interactive) {
-    Write-InfoLog "Interactive mode enabled - loading available packages..." -Category "General"
-    $availablePackages = Get-AvailablePackages -PackageListPath (Join-Path $PSScriptRoot "packageList.json")
-
-    # Start with developer profile as base
-    $baseConfig = Get-ConfigurationProfile -ProfileName "developer"
-    if (-not $baseConfig) {
-        $baseConfig = @{
-            packages = @()
-            includeOffice = $false
-            includeWSL = $false
-            skipHeavyPackages = $false
-        }
-    }
-
-    Show-InteractiveMenu -AvailablePackages $availablePackages -CurrentConfig $baseConfig
-} else {
-    Get-ConfigurationProfile -ProfileName $ConfigProfile
-}
-
-if (-not $config) {
-    Write-ErrorLog "Failed to load configuration. Exiting." -Category "General"
-    exit 1
-}
-
-# Initialize progress tracker
-# $progressTracker = New-ProgressTracker -TotalSteps 8
-
-# Initialize plugin system
-# # $progressTracker.StartOperation("Initializing plugin system")
-$pluginsPath = Join-Path $PSScriptRoot "plugins"
-$loadedPlugins = Initialize-PluginSystem -PluginsPath $pluginsPath
-Write-InfoLog "Loaded $($loadedPlugins.Count) plugins" -Category "General"
-# $progressTracker.CompleteOperation()
-
-# Create backups before making changes
-# $progressTracker.StartOperation("Creating system backups")
-if ($WhatIf) {
-    Write-WarnLog "DRY RUN: Would create system restore point" -Category "General"
-    Write-WarnLog "DRY RUN: Would backup user configurations" -Category "General"
-    Write-WarnLog "DRY RUN: Would export user preferences" -Category "General"
-} else {
-    New-SystemRestorePoint -Description "Before Windows Laptop Automation Setup"
-    $backupPath = Backup-UserConfigurations
-    $preferencesPath = Export-UserPreferences
-    Write-DebugLog "Backup created at: $backupPath" -Category "General"
-    Write-DebugLog "Preferences exported to: $preferencesPath" -Category "General"
-    Add-BackupLocation -BackupPath $backupPath -Description "User configurations backup"
-    Add-BackupLocation -BackupPath $preferencesPath -Description "User preferences export"
-    Add-ComponentConfiguration -ComponentName "System Backup" -Description "System restore point and configuration backup" -Category "Backup"
-}
-# $progressTracker.CompleteOperation()
-
-# Detect hardware
-# $progressTracker.StartOperation("Detecting hardware specifications")
-$systemSpecs = Get-SystemSpecs
-$windowsVersion = Get-WindowsVersion
-Write-DebugLog "System: $($systemSpecs.Manufacturer) $($systemSpecs.Model)" -Category "General"
-Write-DebugLog "Memory: $($systemSpecs.TotalMemoryGB) GB" -Category "General"
-Write-DebugLog "Processor: $($systemSpecs.ProcessorName)" -Category "General"
-Write-DebugLog "OS: $($windowsVersion.Caption) (Build $($windowsVersion.BuildNumber))" -Category "General"
-# $progressTracker.CompleteOperation()
-
-# Apply Windows 11 optimizations if applicable
-if ($windowsVersion.IsWindows11) {
-    # $progressTracker.StartOperation("Applying Windows 11 optimizations")
-    if ($WhatIf) {
-        Write-WarnLog "DRY RUN: Would enable Windows 11 features" -Category "General"
-        Write-WarnLog "DRY RUN: Would set Windows 11 settings" -Category "General"
-        Write-WarnLog "DRY RUN: Would optimize Windows Package Manager" -Category "General"
-        if ($config.includeWSL) {
-            Write-WarnLog "DRY RUN: Would install WSL2 integration" -Category "General"
-        }
-    } else {
-        Enable-Windows11Features
-        Set-Windows11Settings
-        Optimize-WindowsPackageManager
-
-        # Setup WSL2 if configured in profile
-        if ($config.includeWSL) {
-            Install-WSL2Integration
-        }
-
-        Add-ComponentConfiguration -ComponentName "Windows 11 Optimizations" -Description "Enabled Windows 11 features, settings, and package manager optimizations" -Category "System"
-        if ($config.includeWSL) {
-            Add-ComponentConfiguration -ComponentName "WSL2 Integration" -Description "Windows Subsystem for Linux 2 integration" -Category "Development"
-        }
-    }
-    # $progressTracker.CompleteOperation()
-} else {
-    # $progressTracker.CurrentStep++ # Skip Windows 11 optimizations
-}
-
-# Security and Compliance
-# $progressTracker.StartOperation("Running security and compliance checks")
-Write-InfoLog "Running security baseline assessment..." -Category "Security"
-
-if ($WhatIf) {
-    Write-WarnLog "DRY RUN: Would run security baseline assessment" -Category "Security"
-    Write-WarnLog "DRY RUN: Would check compliance status" -Category "Security"
-    Write-WarnLog "DRY RUN: Would apply security hardening" -Category "Security"
-} else {
-    # Run security baseline assessment
-    $securityResults = Test-SecurityBaseline
-    Write-InfoLog "Security assessment completed: $($securityResults.Passed.Count) passed, $($securityResults.Failed.Count) failed, $($securityResults.Warnings.Count) warnings" -Category "Security"
-
-    # Run compliance check
-    $complianceResults = Test-ComplianceStatus
-    Write-InfoLog "Compliance check completed: $($complianceResults.Score)% score ($($complianceResults.PassedChecks)/$($complianceResults.TotalChecks) checks passed)" -Category "Security"
-
-    # Export compliance report
-    $reportPath = Export-ComplianceReport -ComplianceResults $complianceResults
-    if ($reportPath) {
-        Add-ComponentConfiguration -ComponentName "Compliance Report" -Description "Security and compliance assessment report generated" -FilesModified @($reportPath) -Category "Security"
-    }
-
-    # Apply security hardening
-    Set-SecurityHardening
-
-    Add-ComponentConfiguration -ComponentName "Security Hardening" -Description "Applied security hardening measures and compliance checks" -Category "Security"
-}
-# $progressTracker.CompleteOperation()
-
-# Update Management
-if ($EnableUpdateManagement) {
-    # $progressTracker.StartOperation("Running update management")
-    Write-InfoLog "Running comprehensive system updates..." -Category "Updates"
-
-    if ($WhatIf) {
-        Write-WarnLog "DRY RUN: Would install Windows updates" -Category "Updates"
-        Write-WarnLog "DRY RUN: Would update Chocolatey packages" -Category "Updates"
-        Write-WarnLog "DRY RUN: Would update WinGet packages" -Category "Updates"
-        Write-WarnLog "DRY RUN: Would update Microsoft Store apps" -Category "Updates"
-    } else {
-        $updateResults = Invoke-SystemUpdate -SkipWindowsUpdates:$SkipWindowsUpdates -SkipPackageUpdates:$SkipPackageUpdates -SkipStoreUpdates:$SkipStoreUpdates -RebootIfRequired:$RebootIfRequired
-
-        if ($updateResults.WindowsUpdates) {
-            Add-ComponentConfiguration -ComponentName "Windows Updates" -Description "Windows updates installed successfully" -Category "Updates"
-        }
-        if ($updateResults.ChocolateyUpdates) {
-            Add-ComponentConfiguration -ComponentName "Chocolatey Updates" -Description "Chocolatey packages updated successfully" -Category "Updates"
-        }
-        if ($updateResults.WinGetUpdates) {
-            Add-ComponentConfiguration -ComponentName "WinGet Updates" -Description "WinGet packages updated successfully" -Category "Updates"
-        }
-        if ($updateResults.StoreUpdates) {
-            Add-ComponentConfiguration -ComponentName "Store Updates" -Description "Microsoft Store apps updated successfully" -Category "Updates"
-        }
-
-        if ($updateResults.RebootRequired) {
-            Set-RestartRequired -Reason "System updates require restart"
-        }
-    }
-    # $progressTracker.CompleteOperation()
-} else {
-    Write-DebugLog "Update management not enabled" -Category "Updates"
-    # $progressTracker.CurrentStep++ # Skip update management
-}
-
-# Inventory Collection
-# $progressTracker.StartOperation("Collecting system inventory")
-Write-InfoLog "Collecting system inventory..." -Category "Inventory"
-
-if ($WhatIf) {
-    Write-WarnLog "DRY RUN: Would collect system inventory" -Category "Inventory"
-    Write-WarnLog "DRY RUN: Would export inventory report" -Category "Inventory"
-} else {
-    $inventory = Get-SystemInventory
-    if ($inventory) {
-        # Export inventory report
-        $inventoryPath = Export-InventoryReport -Inventory $inventory
-        if ($inventoryPath) {
-            Add-ComponentConfiguration -ComponentName "System Inventory" -Description "Comprehensive system inventory collected and exported" -FilesModified @($inventoryPath) -Category "Inventory"
-        }
-
-        # Save inventory for future comparisons
-        Save-Inventory -Inventory $inventory
-    }
-}
-# $progressTracker.CompleteOperation()
+Write-Log "Starting Windows Laptop Automation Setup" Cyan
+Write-Log "Script location: $PSScriptRoot" Gray
 
 # Install packages
 if (-not $SkipPackages) {
     # Check admin privileges only when installing packages
     if (-not (Test-IsAdmin)) {
-        Write-ErrorLog "Package installation requires administrator privileges. Please run as administrator or use -SkipPackages." -Category "General"
+        Write-Log "Package installation requires administrator privileges. Please run as administrator or use -SkipPackages." Red
         exit 1
     }
-
-    # $progressTracker.StartOperation("Installing package managers and packages")
-
-    Write-InfoLog "Installing package managers and packages..." -Category "General"
-
+    
+    Write-Log "Installing package managers and packages..." Cyan
+    
     # Ensure Chocolatey is installed
     $chocoInstalled = Install-Chocolatey
-
+    
     if ($chocoInstalled) {
-        $packageListPath = Join-Path $PSScriptRoot "packageList.json"
-        Install-Packages -PackageListPath $packageListPath -WhatIf:$WhatIf
-
+        Install-Packages
+        
         # Refresh environment variables after package installation
-        Write-InfoLog "Refreshing environment variables..." -Category "General"
+        Write-Log "Refreshing environment variables..." Cyan
         $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
     } else {
-        Write-ErrorLog "Cannot proceed without a package manager" -Category "General"
+        Write-Log "Cannot proceed without a package manager" Red
         exit 1
     }
-    # $progressTracker.CompleteOperation()
 } else {
-    Write-WarnLog "Skipping package installation" -Category "General"
-    # $progressTracker.CurrentStep++ # Skip this step
+    Write-Log "Skipping package installation" Yellow 
 }
 
-# Run office.ps1 if it exists and not skipped
-$officeScriptPath = Join-Path $PSScriptRoot "office.ps1"
-if ((Test-Path $officeScriptPath) -and -not $SkipOffice) {
-    # $progressTracker.StartOperation("Running Office setup script")
-    Write-InfoLog "Running Office setup script: $officeScriptPath" -Category "General"
+# Run office.ps1 if it exists
+$officeScriptPath = Join-Path $PSScriptRoot "office.ps1"    
+if (Test-Path $officeScriptPath ) {
+    # Test if not wanted with the -SkipOffice switch
+    if ($SkipOffice) {
+        Write-Log "Skipping Office setup script as requested" Yellow
+        return
+    }
+    Write-Log "Running Office setup script: $officeScriptPath" Cyan
     try {
         . $officeScriptPath
     } catch {
-        Write-ErrorLog "Failed to run Office setup script: $($_.Exception.Message)" -Category "General"
+        Write-Log "Failed to run Office setup script: $($_.Exception.Message)" Red
     }
-    # $progressTracker.CompleteOperation()
 } else {
-    if ($SkipOffice) {
-        Write-WarnLog "Skipping Office setup script as requested" -Category "General"
-    } else {
-        Write-WarnLog "Office setup script not found: $officeScriptPath" -Category "General"
-    }
-    # $progressTracker.CurrentStep++ # Skip this step
+    Write-Log "Office setup script not found: $officeScriptPath" Yellow
 }
 
 # Setup PowerShell profile
 if (-not $SkipProfile) {
-    # $progressTracker.StartOperation("Setting up PowerShell profile")
-    Write-InfoLog "Setting up PowerShell profile..." -Category "General"
-    Set-PowerShellProfile -WhatIf:$WhatIf
-    # $progressTracker.CompleteOperation()
+    Write-Log "Setting up PowerShell profile..." Cyan
+    Setup-PowerShellProfile
 } else {
-    Write-WarnLog "Skipping PowerShell profile setup" -Category "General"
-    # $progressTracker.CurrentStep++ # Skip this step
+    Write-Log "Skipping PowerShell profile setup" Yellow
 }
 
-# Execute plugins
-if ($loadedPlugins.Count -gt 0) {
-    # $progressTracker.StartOperation("Executing plugins")
-    if ($WhatIf) {
-        Write-WarnLog "DRY RUN: Would execute $($loadedPlugins.Count) plugins:" -Category "General"
-        foreach ($plugin in $loadedPlugins) {
-            Write-DebugLog "  - $($plugin.Name): $($plugin.Description)" -Category "General"
-        }
-    } else {
-        Write-InfoLog "Executing $($loadedPlugins.Count) plugins..." -Category "General"
-        foreach ($plugin in $loadedPlugins) {
-            try {
-                Write-InfoLog "Executing plugin: $($plugin.Name)" -Category "General"
-                Invoke-Plugin -Plugin $plugin -SystemSpecs $systemSpecs -WindowsVersion $windowsVersion -Config $config
-            } catch {
-                Write-ErrorLog "Failed to execute plugin $($plugin.Name): $($_.Exception.Message)" -Category "General"
-            }
-        }
-    }
-    # $progressTracker.CompleteOperation()
-} else {
-    Write-DebugLog "No plugins to execute" -Category "General"
-    # $progressTracker.CurrentStep++ # Skip this step
-}
-
-# $progressTracker.WriteSummary()
-
-if ($WhatIf) {
-    Write-WarnLog "DRY RUN COMPLETED - No changes were made to your system" -Category "General"
-    Write-InfoLog "Run without -WhatIf to apply these changes" -Category "General"
-} else {
-    # Finalize and display post-installation summary
-    Complete-PostInstallSummary
-    Show-PostInstallSummary
-}
-
+Write-Log "Setup completed successfully!" Green
+Write-Log "Please restart your PowerShell session to apply profile changes." Cyan
