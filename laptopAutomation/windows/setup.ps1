@@ -15,6 +15,64 @@ param (
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+# Validation function
+function Test-SetupPrerequisites {
+    Write-Log "Validating setup prerequisites..." Cyan
+    
+    $errors = @()
+    
+    # Check required files
+    $requiredFiles = @(
+        "packageList.json",
+        "profile-content.ps1"
+    )
+    
+    foreach ($file in $requiredFiles) {
+        $filePath = Join-Path $PSScriptRoot $file
+        if (-not (Test-Path $filePath)) {
+            $errors += "Required file not found: $file"
+        }
+    }
+    
+    # Validate JSON files
+    $jsonFiles = @("packageList.json")
+    foreach ($file in $jsonFiles) {
+        $filePath = Join-Path $PSScriptRoot $file
+        if (Test-Path $filePath) {
+            try {
+                $content = Get-Content $filePath -Raw
+                $null = ConvertFrom-Json $content
+                Write-Log "✓ $file is valid JSON" Green
+            } catch {
+                $errors += "$file contains invalid JSON: $($_.Exception.Message)"
+            }
+        }
+    }
+    
+    # Check internet connectivity
+    try {
+        $testConnection = Test-Connection -ComputerName "8.8.8.8" -Count 1 -Quiet
+        if (-not $testConnection) {
+            $errors += "No internet connectivity detected"
+        } else {
+            Write-Log "✓ Internet connectivity confirmed" Green
+        }
+    } catch {
+        $errors += "Failed to test internet connectivity: $($_.Exception.Message)"
+    }
+    
+    if ($errors.Count -gt 0) {
+        Write-Log "Setup validation failed:" Red
+        foreach ($error in $errors) {
+            Write-Log "  - $error" Red
+        }
+        return $false
+    }
+    
+    Write-Log "✓ All prerequisites validated successfully" Green
+    return $true
+}
+
 # Logging function
 function Write-Log {
     param([string]$Message, [ConsoleColor]$Color='White')
@@ -69,9 +127,41 @@ function Test-WinGet {
     }
 }
 
+# Check if a package is already installed
+function Test-PackageInstalled {
+    param([string]$PackageName, [string]$CommandName)
+    
+    if ($CommandName) {
+        try {
+            $null = Get-Command $CommandName -ErrorAction Stop
+            Write-Log "$PackageName is already installed (found command: $CommandName)" Green
+            return $true
+        } catch {
+            return $false
+        }
+    }
+    
+    # Fallback checks for common packages
+    switch ($PackageName) {
+        "Git" { return Test-Path "C:\Program Files\Git\bin\git.exe" }
+        "Visual Studio Code" { return Test-Path "C:\Program Files\Microsoft VS Code\bin\code.cmd" }
+        "PowerShell 7" { return Test-Path "C:\Program Files\PowerShell\7\pwsh.exe" }
+        "Node.js" { return Get-Command node -ErrorAction SilentlyContinue }
+        "Docker Desktop" { return Test-Path "C:\Program Files\Docker\Docker\Docker Desktop.exe" }
+        "Mozilla Firefox" { return Test-Path "C:\Program Files\Mozilla Firefox\firefox.exe" }
+        "7-Zip" { return Test-Path "C:\Program Files\7-Zip\7z.exe" }
+        default { return $false }
+    }
+}
+
 # Install package using Chocolatey
 function Install-ChocoPackage {
-    param([string]$PackageId, [string]$PackageName)
+    param([string]$PackageId, [string]$PackageName, [string]$CommandName)
+    
+    # Check if already installed
+    if (Test-PackageInstalled -PackageName $PackageName -CommandName $CommandName) {
+        return $true
+    }
     
     try {
         Write-Log "Installing $PackageName via Chocolatey..." Cyan
@@ -86,7 +176,12 @@ function Install-ChocoPackage {
 
 # Install package using WinGet
 function Install-WinGetPackage {
-    param([string]$PackageId, [string]$PackageName)
+    param([string]$PackageId, [string]$PackageName, [string]$CommandName)
+    
+    # Check if already installed
+    if (Test-PackageInstalled -PackageName $PackageName -CommandName $CommandName) {
+        return $true
+    }
     
     try {
         Write-Log "Installing $PackageName via WinGet..." Cyan
@@ -116,27 +211,54 @@ function Install-Packages {
     Write-Log "Chocolatey available: $($chocoAvailable -ne $null)" Gray
     Write-Log "WinGet available: $wingetAvailable" Gray
     
+    $failedPackages = @()
+    $skippedPackages = 0
+    $totalPackages = $packages.Count
+    $currentPackage = 0
+    
     foreach ($package in $packages) {
+        $currentPackage++
+        $progressPercent = [math]::Round(($currentPackage / $totalPackages) * 100)
+        
+        Write-Progress -Activity "Installing Packages" -Status "Processing $($package.Name) ($currentPackage of $totalPackages)" -PercentComplete $progressPercent
+        
         Write-Log "Processing package: $($package.Name)" White
         
         $installed = $false
+        $commandName = $package.command
         
         # Try Chocolatey first (primary package manager)
         if ($chocoAvailable -and $package.chocoId) {
-            $installed = Install-ChocoPackage -PackageId $package.chocoId -PackageName $package.Name
+            $installed = Install-ChocoPackage -PackageId $package.chocoId -PackageName $package.Name -CommandName $commandName
         }
         
         # Fallback to WinGet if Chocolatey failed or is not available
         if (-not $installed -and $wingetAvailable -and $package.wingetId) {
             Write-Log "Falling back to WinGet for $($package.Name)" Yellow
-            $installed = Install-WinGetPackage -PackageId $package.wingetId -PackageName $package.Name
+            $installed = Install-WinGetPackage -PackageId $package.wingetId -PackageName $package.Name -CommandName $commandName
         }
         
         if (-not $installed) {
             Write-Log "Failed to install $($package.Name) with any package manager" Red
+            $failedPackages += $package.Name
+        } elseif (Test-PackageInstalled -PackageName $package.Name -CommandName $commandName) {
+            $skippedPackages++
         }
         
         Write-Host "" # Empty line for readability
+    }
+    
+    Write-Progress -Activity "Installing Packages" -Completed
+    
+    # Summary
+    Write-Log "Package installation summary:" Cyan
+    Write-Log "  Total packages: $($packages.Count)" Gray
+    Write-Log "  Skipped (already installed): $skippedPackages" Green
+    Write-Log "  Failed: $($failedPackages.Count)" $(if ($failedPackages.Count -gt 0) { "Red" } else { "Green" })
+    
+    if ($failedPackages.Count -gt 0) {
+        Write-Log "Failed packages: $($failedPackages -join ', ')" Yellow
+        Write-Log "You can retry failed packages by running the script again" Yellow
     }
 }
 
@@ -175,6 +297,12 @@ function Setup-PowerShellProfile {
 # Main execution
 Write-Log "Starting Windows Laptop Automation Setup" Cyan
 Write-Log "Script location: $PSScriptRoot" Gray
+
+# Validate prerequisites
+if (-not (Test-SetupPrerequisites)) {
+    Write-Log "Setup prerequisites validation failed. Please fix the issues above and try again." Red
+    exit 1
+}
 
 # Install packages
 if (-not $SkipPackages) {

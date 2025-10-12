@@ -30,6 +30,8 @@ function Write-Log {
     param([string]$Message, [ConsoleColor]$Color='White')
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     Write-Host "[$timestamp] $Message" -ForegroundColor $Color
+}
+
 # Set the GitHub repository owner (username or organization)
 $repoOwner = "Damianko135"
 # Set the GitHub repository name
