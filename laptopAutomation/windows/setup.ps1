@@ -191,6 +191,10 @@ if (-not $SkipPackages) {
     
     if ($chocoInstalled) {
         Install-Packages
+        
+        # Refresh environment variables after package installation
+        Write-Log "Refreshing environment variables..." Cyan
+        $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
     } else {
         Write-Log "Cannot proceed without a package manager" Red
         exit 1

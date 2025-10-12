@@ -1,12 +1,40 @@
 # Office Deployment Automation Script
 # Author: Damian Korver
 
+# Logging function
+function Write-Log {
+    param([string]$Message, [ConsoleColor]$Color='White')
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    Write-Host "[$timestamp] $Message" -ForegroundColor $Color
+}
+
 $workingDir = "$env:TEMP\OfficeInstall"
 $odtUrl = "https://download.microsoft.com/download/6c1eeb25-cf8b-41d9-8d0d-cc1dbc032140/officedeploymenttool_18827-20140.exe"
 $odtExe = Join-Path $workingDir "odt.exe"
 $setupExe = Join-Path $workingDir "setup.exe"
 $configSource = Join-Path $PSScriptRoot "office-configuration.xml"
 $configPath = Join-Path $workingDir "configuration.xml"
+
+# Function to check if Office is installed
+function Test-OfficeInstalled {
+    # Check for common Office executables
+    $officePaths = @(
+        "C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE",
+        "C:\Program Files (x86)\Microsoft Office\root\Office16\WINWORD.EXE"
+    )
+    foreach ($path in $officePaths) {
+        if (Test-Path $path) {
+            return $true
+        }
+    }
+    return $false
+}
+
+# Check if Office is already installed
+if (Test-OfficeInstalled) {
+    Write-Log "Office is already installed. Skipping installation." Yellow
+    exit 0
+}
 
 # Ensure working directory exists
 if (-Not (Test-Path $workingDir)) {
@@ -15,49 +43,49 @@ if (-Not (Test-Path $workingDir)) {
 
 # Download ODT if not already downloaded
 if (-Not (Test-Path $odtExe)) {
-    Write-Host "Downloading Office Deployment Tool..."
+    Write-Log "Downloading Office Deployment Tool..." Cyan
     Invoke-WebRequest -Uri $odtUrl -OutFile $odtExe
 } else {
-    Write-Host "ODT already downloaded."
+    Write-Log "ODT already downloaded." Green
 }
 
 # Extract ODT if setup.exe not already present
 if (-Not (Test-Path $setupExe)) {
-    Write-Host "Extracting Office Deployment Tool..."
+    Write-Log "Extracting Office Deployment Tool..." Cyan
     try {
         Start-Process -FilePath $odtExe -ArgumentList "/extract:`"$workingDir`" /quiet" -Wait
     } catch {
-        Write-Error "Failed to extract Office Deployment Tool: $($_.Exception.Message)"
+        Write-Log "Failed to extract Office Deployment Tool: $($_.Exception.Message)" Red
         exit 1
     }
 } else {
-    Write-Host "ODT already extracted."
+    Write-Log "ODT already extracted." Green
 }
 
 # Copy config XML
 if (-Not (Test-Path $configSource)) {
-    Write-Error "Missing config file: $configSource"
+    Write-Log "Missing config file: $configSource" Red
     exit 1
 }
 Copy-Item -Path $configSource -Destination $configPath -Force
-Write-Host "Using Office config from: $configSource"
+Write-Log "Using Office config from: $configSource" Green
 
 # Download Office installation files
-Write-Host "Downloading Office installation files (this may take a while)..."
+Write-Log "Downloading Office installation files (this may take a while)..." Cyan
 try {
     Start-Process -FilePath $setupExe -ArgumentList "/download `"$configPath`"" -Wait
 } catch {
-    Write-Error "Failed to download Office installation files: $($_.Exception.Message)"
+    Write-Log "Failed to download Office installation files: $($_.Exception.Message)" Red
     exit 1
 }
 
 # Install Office
-Write-Host "Installing Office..."
+Write-Log "Installing Office..." Cyan
 try {
     Start-Process -FilePath $setupExe -ArgumentList "/configure `"$configPath`"" -Wait
 } catch {
-    Write-Error "Failed to install Office: $($_.Exception.Message)"
+    Write-Log "Failed to install Office: $($_.Exception.Message)" Red
     exit 1
 }
 
-Write-Host "Office installation process finished."
+Write-Log "Office installation process finished." Green
