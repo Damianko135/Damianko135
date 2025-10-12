@@ -17,6 +17,9 @@ param (
     [switch] $WhatIf
 )
 
+# DEBUG: Script started
+Write-Host "DEBUG: Setup script started with WhatIf=$WhatIf" -ForegroundColor Yellow
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
@@ -37,11 +40,33 @@ Import-Module (Join-Path $modulesPath "PostInstallSummary.psm1")
 # Initialize comprehensive logging
 Initialize-Logging -Level "INFO" -ConsoleOutput -FileOutput -StructuredOutput
 
+# Backward compatibility function for modules that still use Write-Log
+function global:Write-Log {
+    param([string]$Message, [ConsoleColor]$Color = 'White')
+    $level = switch ($Color) {
+        'Red' { 'ERROR' }
+        'Yellow' { 'WARN' }
+        'Cyan' { 'INFO' }
+        'Green' { 'INFO' }
+        'Gray' { 'DEBUG' }
+        'White' { 'INFO' }
+        default { 'INFO' }
+    }
+    $category = 'Legacy'
+    
+    switch ($level) {
+        'ERROR' { Write-ErrorLog $Message -Category $category }
+        'WARN' { Write-WarnLog $Message -Category $category }
+        'DEBUG' { Write-DebugLog $Message -Category $category }
+        default { Write-InfoLog $Message -Category $category }
+    }
+}
+
 # Initialize post-installation summary
 Initialize-PostInstallSummary -ProfileName $ConfigProfile
 
-# Set log file paths for summary
-Set-LogFilePaths -LogPath $script:LogConfig.LogPath -StructuredLogPath $script:LogConfig.StructuredLogPath
+# Set log file paths for summary (use default paths from logging module)
+Set-LogFilePaths -LogPath "$env:TEMP\WindowsAutomation.log" -StructuredLogPath "$env:TEMP\WindowsAutomation.json"
 
 # Check if running as administrator
 function Test-IsAdmin {
@@ -292,15 +317,18 @@ if (-not $config) {
     exit 1
 }
 
+# Initialize progress tracker
+# $progressTracker = New-ProgressTracker -TotalSteps 8
+
 # Initialize plugin system
-$progressTracker.StartOperation("Initializing plugin system")
+# # $progressTracker.StartOperation("Initializing plugin system")
 $pluginsPath = Join-Path $PSScriptRoot "plugins"
 $loadedPlugins = Initialize-PluginSystem -PluginsPath $pluginsPath
 Write-InfoLog "Loaded $($loadedPlugins.Count) plugins" -Category "General"
-$progressTracker.CompleteOperation()
+# $progressTracker.CompleteOperation()
 
 # Create backups before making changes
-$progressTracker.StartOperation("Creating system backups")
+# $progressTracker.StartOperation("Creating system backups")
 if ($WhatIf) {
     Write-WarnLog "DRY RUN: Would create system restore point" -Category "General"
     Write-WarnLog "DRY RUN: Would backup user configurations" -Category "General"
@@ -315,24 +343,21 @@ if ($WhatIf) {
     Add-BackupLocation -BackupPath $preferencesPath -Description "User preferences export"
     Add-ComponentConfiguration -ComponentName "System Backup" -Description "System restore point and configuration backup" -Category "Backup"
 }
-$progressTracker.CompleteOperation()
-
-# Initialize progress tracker
-$progressTracker = New-ProgressTracker -TotalSteps 8
+# $progressTracker.CompleteOperation()
 
 # Detect hardware
-$progressTracker.StartOperation("Detecting hardware specifications")
+# $progressTracker.StartOperation("Detecting hardware specifications")
 $systemSpecs = Get-SystemSpecs
 $windowsVersion = Get-WindowsVersion
 Write-DebugLog "System: $($systemSpecs.Manufacturer) $($systemSpecs.Model)" -Category "General"
 Write-DebugLog "Memory: $($systemSpecs.TotalMemoryGB) GB" -Category "General"
 Write-DebugLog "Processor: $($systemSpecs.ProcessorName)" -Category "General"
 Write-DebugLog "OS: $($windowsVersion.Caption) (Build $($windowsVersion.BuildNumber))" -Category "General"
-$progressTracker.CompleteOperation()
+# $progressTracker.CompleteOperation()
 
 # Apply Windows 11 optimizations if applicable
 if ($windowsVersion.IsWindows11) {
-    $progressTracker.StartOperation("Applying Windows 11 optimizations")
+    # $progressTracker.StartOperation("Applying Windows 11 optimizations")
     if ($WhatIf) {
         Write-WarnLog "DRY RUN: Would enable Windows 11 features" -Category "General"
         Write-WarnLog "DRY RUN: Would set Windows 11 settings" -Category "General"
@@ -355,9 +380,9 @@ if ($windowsVersion.IsWindows11) {
             Add-ComponentConfiguration -ComponentName "WSL2 Integration" -Description "Windows Subsystem for Linux 2 integration" -Category "Development"
         }
     }
-    $progressTracker.CompleteOperation()
+    # $progressTracker.CompleteOperation()
 } else {
-    $progressTracker.CurrentStep++ # Skip Windows 11 optimizations
+    # $progressTracker.CurrentStep++ # Skip Windows 11 optimizations
 }
 
 # Install packages
@@ -368,7 +393,7 @@ if (-not $SkipPackages) {
         exit 1
     }
 
-    $progressTracker.StartOperation("Installing package managers and packages")
+    # $progressTracker.StartOperation("Installing package managers and packages")
 
     Write-InfoLog "Installing package managers and packages..." -Category "General"
 
@@ -386,46 +411,46 @@ if (-not $SkipPackages) {
         Write-ErrorLog "Cannot proceed without a package manager" -Category "General"
         exit 1
     }
-    $progressTracker.CompleteOperation()
+    # $progressTracker.CompleteOperation()
 } else {
     Write-WarnLog "Skipping package installation" -Category "General"
-    $progressTracker.CurrentStep++ # Skip this step
+    # $progressTracker.CurrentStep++ # Skip this step
 }
 
 # Run office.ps1 if it exists and not skipped
 $officeScriptPath = Join-Path $PSScriptRoot "office.ps1"
-if (Test-Path $officeScriptPath -and -not $SkipOffice) {
-    $progressTracker.StartOperation("Running Office setup script")
+if ((Test-Path $officeScriptPath) -and -not $SkipOffice) {
+    # $progressTracker.StartOperation("Running Office setup script")
     Write-InfoLog "Running Office setup script: $officeScriptPath" -Category "General"
     try {
         . $officeScriptPath
     } catch {
         Write-ErrorLog "Failed to run Office setup script: $($_.Exception.Message)" -Category "General"
     }
-    $progressTracker.CompleteOperation()
+    # $progressTracker.CompleteOperation()
 } else {
     if ($SkipOffice) {
         Write-WarnLog "Skipping Office setup script as requested" -Category "General"
     } else {
         Write-WarnLog "Office setup script not found: $officeScriptPath" -Category "General"
     }
-    $progressTracker.CurrentStep++ # Skip this step
+    # $progressTracker.CurrentStep++ # Skip this step
 }
 
 # Setup PowerShell profile
 if (-not $SkipProfile) {
-    $progressTracker.StartOperation("Setting up PowerShell profile")
+    # $progressTracker.StartOperation("Setting up PowerShell profile")
     Write-InfoLog "Setting up PowerShell profile..." -Category "General"
     Set-PowerShellProfile -WhatIf:$WhatIf
-    $progressTracker.CompleteOperation()
+    # $progressTracker.CompleteOperation()
 } else {
     Write-WarnLog "Skipping PowerShell profile setup" -Category "General"
-    $progressTracker.CurrentStep++ # Skip this step
+    # $progressTracker.CurrentStep++ # Skip this step
 }
 
 # Execute plugins
 if ($loadedPlugins.Count -gt 0) {
-    $progressTracker.StartOperation("Executing plugins")
+    # $progressTracker.StartOperation("Executing plugins")
     if ($WhatIf) {
         Write-WarnLog "DRY RUN: Would execute $($loadedPlugins.Count) plugins:" -Category "General"
         foreach ($plugin in $loadedPlugins) {
@@ -442,13 +467,13 @@ if ($loadedPlugins.Count -gt 0) {
             }
         }
     }
-    $progressTracker.CompleteOperation()
+    # $progressTracker.CompleteOperation()
 } else {
     Write-DebugLog "No plugins to execute" -Category "General"
-    $progressTracker.CurrentStep++ # Skip this step
+    # $progressTracker.CurrentStep++ # Skip this step
 }
 
-$progressTracker.WriteSummary()
+# $progressTracker.WriteSummary()
 
 if ($WhatIf) {
     Write-WarnLog "DRY RUN COMPLETED - No changes were made to your system" -Category "General"

@@ -190,7 +190,7 @@ function Show-PostInstallSummary {
 
     # Successfully installed packages
     if ($script:InstallSummary.InstalledPackages.Count -gt 0) {
-        Write-InfoLog "✓ SUCCESSFULLY INSTALLED PACKAGES:" -Category "Summary"
+        Write-InfoLog "[SUCCESS] INSTALLED PACKAGES:" -Category "Summary"
         foreach ($category in $script:InstallSummary.InstalledPackages.Keys) {
             Write-InfoLog "  $category Packages:" -Category "Summary"
             foreach ($package in $script:InstallSummary.InstalledPackages[$category]) {
@@ -203,7 +203,7 @@ function Show-PostInstallSummary {
 
     # Successfully configured components
     if ($script:InstallSummary.ConfiguredComponents.Count -gt 0) {
-        Write-InfoLog "✓ SUCCESSFULLY CONFIGURED COMPONENTS:" -Category "Summary"
+        Write-InfoLog "[SUCCESS] CONFIGURED COMPONENTS:" -Category "Summary"
         foreach ($category in $script:InstallSummary.ConfiguredComponents.Keys) {
             Write-InfoLog "  $category Components:" -Category "Summary"
             foreach ($component in $script:InstallSummary.ConfiguredComponents[$category]) {
@@ -224,7 +224,7 @@ function Show-PostInstallSummary {
                    ($script:InstallSummary.FailedComponents.Values | Measure-Object -Sum { $_.Count }).Sum
 
     if ($totalFailed -gt 0) {
-        Write-WarnLog "⚠ ISSUES ENCOUNTERED:" -Category "Summary"
+        Write-InfoLog "[ISSUES] ISSUES ENCOUNTERED:" -Category "Summary"
 
         if ($script:InstallSummary.FailedPackages.Count -gt 0) {
             Write-WarnLog "  Failed Package Installations:" -Category "Summary"
@@ -254,7 +254,7 @@ function Show-PostInstallSummary {
 
     # Warnings
     if ($script:InstallSummary.Warnings.Count -gt 0) {
-        Write-WarnLog "⚠ WARNINGS:" -Category "Summary"
+        Write-WarnLog "[WARNING] WARNINGS:" -Category "Summary"
         foreach ($warning in $script:InstallSummary.Warnings) {
             Write-WarnLog "  • $warning" -Category "Summary"
         }
@@ -263,7 +263,7 @@ function Show-PostInstallSummary {
 
     # Next steps and recommendations
     if ($script:InstallSummary.Recommendations.Count -gt 0) {
-        Write-InfoLog "📋 NEXT STEPS AND RECOMMENDATIONS:" -Category "Summary"
+        Write-InfoLog "[NEXT] NEXT STEPS AND RECOMMENDATIONS:" -Category "Summary"
         foreach ($recommendation in $script:InstallSummary.Recommendations) {
             Write-InfoLog "  • $recommendation" -Category "Summary"
         }
@@ -272,7 +272,7 @@ function Show-PostInstallSummary {
 
     # System restart requirement
     if ($script:InstallSummary.RequiresRestart) {
-        Write-WarnLog "🔄 SYSTEM RESTART REQUIRED" -Category "Summary"
+        Write-WarnLog "[RESTART] SYSTEM RESTART REQUIRED" -Category "Summary"
         Write-WarnLog "  Some changes require a system restart to take effect." -Category "Summary"
         Write-WarnLog "  Please restart your computer when convenient." -Category "Summary"
         Write-Host ""
@@ -280,7 +280,7 @@ function Show-PostInstallSummary {
 
     # Backup information
     if ($script:InstallSummary.BackupLocations.Count -gt 0) {
-        Write-InfoLog "💾 BACKUP INFORMATION:" -Category "Summary"
+        Write-InfoLog "[BACKUP] BACKUP INFORMATION:" -Category "Summary"
         Write-InfoLog "  Backups were created at:" -Category "Summary"
         foreach ($backup in $script:InstallSummary.BackupLocations) {
             Write-InfoLog "    • $backup" -Category "Summary"
@@ -290,7 +290,7 @@ function Show-PostInstallSummary {
 
     # Log file locations
     if ($script:InstallSummary.LogFilePath -or $script:InstallSummary.StructuredLogPath) {
-        Write-InfoLog "📄 LOG FILES:" -Category "Summary"
+        Write-InfoLog "[LOGS] LOG FILES:" -Category "Summary"
         if ($script:InstallSummary.LogFilePath) {
             Write-InfoLog "  Text log: $($script:InstallSummary.LogFilePath)" -Category "Summary"
         }
@@ -303,7 +303,7 @@ function Show-PostInstallSummary {
 
     # Final message
     if ($totalFailed -eq 0) {
-        Write-InfoLog "🎉 SETUP COMPLETED SUCCESSFULLY!" -Category "Summary"
+        Write-InfoLog "[SUCCESS] SETUP COMPLETED SUCCESSFULLY!" -Category "Summary"
         Write-InfoLog "  Your Windows laptop automation setup is complete." -Category "Summary"
         Write-InfoLog "  Enjoy your optimized development environment!" -Category "Summary"
     } else {

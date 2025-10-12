@@ -62,4 +62,3 @@ function New-ProgressTracker {
 
 # Export functions and classes
 Export-ModuleMember -Function New-ProgressTracker
-Export-ModuleMember -TypeName ProgressTracker

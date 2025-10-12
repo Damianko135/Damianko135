@@ -8,50 +8,48 @@ function Initialize-PluginSystem {
 
     if (-not (Test-Path $PluginsPath)) {
         Write-Log "Plugins directory not found: $PluginsPath" Yellow
-        return
+        return @()
     }
 
     Write-Log "Initializing plugin system..." Cyan
 
-    # Load plugin manifest if it exists
-    $manifestPath = Join-Path $PluginsPath "plugins.json"
-    if (Test-Path $manifestPath) {
-        try {
-            $manifest = Get-Content $manifestPath | ConvertFrom-Json
-            Write-Log "Found plugin manifest with $($manifest.plugins.Count) plugins" Green
+    # Auto-discover plugins by looking for .json config files
+    Write-Log "Auto-discovering plugins..." Yellow
 
-            foreach ($plugin in $manifest.plugins) {
-                Import-Plugin -PluginPath (Join-Path $PluginsPath $plugin.path) -PluginConfig $plugin
+    $pluginConfigFiles = Get-ChildItem $PluginsPath -Filter "*.json" -File
+    foreach ($configFile in $pluginConfigFiles) {
+        try {
+            $pluginConfig = Get-Content $configFile.FullName | ConvertFrom-Json
+            $pluginScriptPath = Join-Path $PluginsPath "$($configFile.BaseName).ps1"
+
+            if (Test-Path $pluginScriptPath) {
+                $pluginInfo = @{
+                    Name = $configFile.BaseName
+                    Type = "Script"
+                    Path = $pluginScriptPath
+                    Config = $pluginConfig
+                    Description = $pluginConfig.description
+                }
+
+                Write-Log "Registered plugin: $($pluginInfo.Name)" Green
+                $script:LoadedPlugins += $pluginInfo
+            } else {
+                Write-Log "Plugin script not found for config: $($configFile.Name)" Yellow
             }
         } catch {
-            Write-Log "Failed to load plugin manifest: $($_.Exception.Message)" Red
-        }
-    } else {
-        # Auto-discover plugins
-        Write-Log "No plugin manifest found, auto-discovering plugins..." Yellow
-
-        $pluginFiles = Get-ChildItem $PluginsPath -Filter "*.ps1" -File
-        foreach ($pluginFile in $pluginFiles) {
-            Load-Plugin -PluginPath $pluginFile.FullName
-        }
-
-        $pluginModules = Get-ChildItem $PluginsPath -Filter "*.psm1" -File
-        foreach ($moduleFile in $pluginModules) {
-            try {
-                Import-Module $moduleFile.FullName -Force
-                Write-Log "Loaded plugin module: $($moduleFile.Name)" Green
-                $script:LoadedPlugins += @{
-                    Name = $moduleFile.BaseName
-                    Type = "Module"
-                    Path = $moduleFile.FullName
-                }
-            } catch {
-                Write-Log "Failed to load plugin module $($moduleFile.Name): $($_.Exception.Message)" Red
-            }
+            Write-Log "Failed to load plugin config $($configFile.Name): $($_.Exception.Message)" Red
         }
     }
 
     Write-Log "Plugin system initialized with $($script:LoadedPlugins.Count) plugins" Green
+
+    return $script:LoadedPlugins
+}
+
+function Load-Plugin {
+    param([string]$PluginPath)
+
+    Import-Plugin -PluginPath $PluginPath
 }
 
 function Import-Plugin {
@@ -65,9 +63,6 @@ function Import-Plugin {
     try {
         $pluginName = [System.IO.Path]::GetFileNameWithoutExtension($PluginPath)
 
-        # Load plugin script
-        . $PluginPath
-
         $pluginInfo = @{
             Name = $pluginName
             Type = "Script"
@@ -75,27 +70,46 @@ function Import-Plugin {
             Config = $PluginConfig
         }
 
-        # Check if plugin has required functions
-        $requiredFunctions = @("Invoke-Plugin", "Get-PluginInfo")
-        $hasRequiredFunctions = $true
-
-        foreach ($func in $requiredFunctions) {
-            if (-not (Get-Command $func -ErrorAction SilentlyContinue)) {
-                $hasRequiredFunctions = $false
-                break
-            }
-        }
-
-        if ($hasRequiredFunctions) {
-            $pluginInfo.Info = Get-PluginInfo
-            Write-Log "Loaded plugin: $($pluginInfo.Info.Name) v$($pluginInfo.Info.Version)" Green
-            $script:LoadedPlugins += $pluginInfo
-        } else {
-            Write-Log "Plugin $pluginName does not have required functions (Invoke-Plugin, Get-PluginInfo)" Yellow
-        }
+        # Store plugin info without loading the script yet
+        Write-Log "Registered plugin: $pluginName" Green
+        $script:LoadedPlugins += $pluginInfo
 
     } catch {
         Write-Log "Failed to load plugin $PluginPath`: $($_.Exception.Message)" Red
+    }
+}
+
+function Invoke-Plugin {
+    param(
+        [Parameter(Mandatory=$true)]
+        [PSCustomObject]$Plugin,
+
+        [Parameter(Mandatory=$true)]
+        [PSCustomObject]$SystemSpecs,
+
+        [Parameter(Mandatory=$true)]
+        [PSCustomObject]$WindowsVersion,
+
+        [Parameter(Mandatory=$true)]
+        [PSCustomObject]$Config
+    )
+
+    $pluginPath = $Plugin.Path
+    if (-not (Test-Path $pluginPath)) {
+        Write-Log "Plugin script not found: $pluginPath" Red
+        return
+    }
+
+    try {
+        Write-Log "Executing plugin: $($Plugin.Name)" Cyan
+
+        # Execute the plugin script with parameters
+        & $pluginPath -Plugin $Plugin.Config -SystemSpecs $SystemSpecs -WindowsVersion $WindowsVersion -Config $Config
+
+        Write-Log "Plugin $($Plugin.Name) executed successfully" Green
+    } catch {
+        Write-Log "Failed to execute plugin $($Plugin.Name): $($_.Exception.Message)" Red
+        throw
     }
 }
 
@@ -131,37 +145,30 @@ function New-PluginTemplate {
 # $PluginName Plugin
 # Description: Custom plugin for Windows Laptop Automation
 
-function Get-PluginInfo {
-    return @{
-        Name = "$PluginName"
-        Version = "1.0.0"
-        Description = "Custom plugin description"
-        Author = "Your Name"
-        Phases = @("pre-install", "post-install", "cleanup")  # Supported phases
-    }
+param(
+    [Parameter(Mandatory=`$true)]
+    [PSCustomObject]`$Plugin,
+
+    [Parameter(Mandatory=`$true)]
+    [PSCustomObject]`$SystemSpecs,
+
+    [Parameter(Mandatory=`$true)]
+    [PSCustomObject]`$WindowsVersion,
+
+    [Parameter(Mandatory=`$true)]
+    [PSCustomObject]`$Config
+)
+
+# Plugin execution logic
+function Invoke-PluginExecution {
+    Write-Host "Executing $PluginName plugin v`$($Plugin.version)" -ForegroundColor Cyan
+
+    # Add your plugin logic here
+    Write-Host "$PluginName plugin execution completed" -ForegroundColor Green
 }
 
-function Invoke-Plugin {
-    param([string]`$Phase, [hashtable]`$Context)
-
-    switch (`$Phase) {
-        "pre-install" {
-            # Code to run before installation begins
-            Write-Log "Plugin $PluginName`: Pre-install phase" Cyan
-        }
-        "post-install" {
-            # Code to run after installation completes
-            Write-Log "Plugin $PluginName`: Post-install phase" Cyan
-        }
-        "cleanup" {
-            # Code to run during cleanup
-            Write-Log "Plugin $PluginName`: Cleanup phase" Cyan
-        }
-        default {
-            Write-Log "Plugin $PluginName`: Unknown phase `$Phase" Yellow
-        }
-    }
-}
+# Execute the plugin
+Invoke-PluginExecution
 "@
 
     $outputFile = Join-Path $OutputPath "$PluginName.ps1"
@@ -170,4 +177,4 @@ function Invoke-Plugin {
 }
 
 # Export functions
-Export-ModuleMember -Function Initialize-PluginSystem, Invoke-Plugins, Get-LoadedPlugins, New-PluginTemplate
+Export-ModuleMember -Function Initialize-PluginSystem, Invoke-Plugin, Invoke-Plugins, Get-LoadedPlugins, New-PluginTemplate
