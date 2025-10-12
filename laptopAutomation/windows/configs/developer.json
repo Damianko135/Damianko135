@@ -1,0 +1,13 @@
+{
+  "name": "Developer",
+  "description": "Full development environment",
+  "packages": [
+    "git",
+    "vscode",
+    "visualstudio2022community",
+    "nodejs",
+    "docker-desktop"
+  ],
+  "includeOffice": true,
+  "includeWSL": true
+}

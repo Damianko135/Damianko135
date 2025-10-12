@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 # Windows Laptop Automation Setup Script
 # Author: Damian Korver
-# Description: Minimal setup script that installs packages and configures PowerShell profile
+# Description: Modular setup script that installs packages and configures PowerShell profile
 
 #Requires -Version 5.1
 
@@ -9,11 +9,19 @@ param (
     [switch] $SkipPackages,
     [switch] $SkipProfile,
     [switch] $Force,
-    [switch] $SkipOffice
+    [switch] $SkipOffice,
+    [string] $ConfigProfile = "developer"
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+# Import modules
+$modulesPath = Join-Path $PSScriptRoot "modules"
+Import-Module (Join-Path $modulesPath "PackageInstaller.psm1")
+Import-Module (Join-Path $modulesPath "HardwareDetector.psm1")
+Import-Module (Join-Path $modulesPath "SecurityValidator.psm1")
+Import-Module (Join-Path $modulesPath "ProgressTracker.psm1")
 
 # Logging function
 function Write-Log {
@@ -29,114 +37,98 @@ function Test-IsAdmin {
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
-# Install Chocolatey if not present
-function Install-Chocolatey {
-    if (Get-Command choco -ErrorAction SilentlyContinue) {
-        Write-Log "Chocolatey is already installed" Green
-        return $true
+# Setup PowerShell profile
+function Setup-PowerShellProfile {
+    $profilePath = $PROFILE
+    $profileContentPath = Join-Path $PSScriptRoot "profile-content.ps1"
+
+    if (-not (Test-Path $profileContentPath)) {
+        Write-Log "Profile content file not found: $profileContentPath" Red
+        return
     }
-    
+
+    # Create profile directory if it doesn't exist
+    $profileDir = Split-Path $profilePath
+    if (-not (Test-Path $profileDir)) {
+        Write-Log "Creating profile directory: $profileDir" Cyan
+        New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
+    }
+
     try {
-        Write-Log "Installing Chocolatey..." Cyan
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-        
-        # Refresh environment variables
-        $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
-        
-        if (Get-Command choco -ErrorAction SilentlyContinue) {
-            Write-Log "Chocolatey installed successfully" Green
-            return $true
+        $profileContent = Get-Content $profileContentPath -Raw
+
+        if ($Force -or -not (Test-Path $profilePath)) {
+            Write-Log "Creating PowerShell profile: $profilePath" Cyan
+            $profileContent | Set-Content -Path $profilePath -Encoding UTF8
+            Write-Log "PowerShell profile created successfully" Green
         } else {
-            Write-Log "Chocolatey installation failed" Red
-            return $false
+            Write-Log "Profile already exists. Use -Force to overwrite" Yellow
         }
     } catch {
-        Write-Log "Failed to install Chocolatey: $($_.Exception.Message)" Red
-        return $false
-    }
-}
-
-# Check if WinGet is available
-function Test-WinGet {
-    try {
-        $null = Get-Command winget -ErrorAction Stop
-        return $true
-    } catch {
-        Write-Log "WinGet not available" Yellow
-        return $false
-    }
-}
-
-# Install package using Chocolatey
-function Install-ChocoPackage {
-    param([string]$PackageId, [string]$PackageName)
-    
-    try {
-        Write-Log "Installing $PackageName via Chocolatey..." Cyan
-        choco install $PackageId -y --no-progress
-        Write-Log "$PackageName installed successfully via Chocolatey" Green
-        return $true
-    } catch {
-        Write-Log "Failed to install $PackageName via Chocolatey: $($_.Exception.Message)" Red
-        return $false
-    }
-}
-
-# Install package using WinGet
-function Install-WinGetPackage {
-    param([string]$PackageId, [string]$PackageName)
-    
-    try {
-        Write-Log "Installing $PackageName via WinGet..." Cyan
-        winget install --id $PackageId --silent --accept-package-agreements --accept-source-agreements
-        Write-Log "$PackageName installed successfully via WinGet" Green
-        return $true
-    } catch {
-        Write-Log "Failed to install $PackageName via WinGet: $($_.Exception.Message)" Red
-        return $false
+        Write-Log "Failed to setup PowerShell profile: $($_.Exception.Message)" Red
     }
 }
 
 # Install packages from JSON file
 function Install-Packages {
-    $packageListPath = Join-Path $PSScriptRoot "packageList.json"
-    
-    if (-not (Test-Path $packageListPath)) {
-        Write-Log "Package list not found: $packageListPath" Red
+    param([string]$PackageListPath)
+
+    if (-not (Test-Path $PackageListPath)) {
+        Write-Log "Package list not found: $PackageListPath" Red
         return
     }
-    
-    $packages = Get-Content $packageListPath | ConvertFrom-Json
+
+    $packages = Get-Content $PackageListPath | ConvertFrom-Json
     $chocoAvailable = Get-Command choco -ErrorAction SilentlyContinue
     $wingetAvailable = Test-WinGet
-    
+
     Write-Log "Found $($packages.Count) packages to install" Cyan
-    Write-Log "Chocolatey available: $($chocoAvailable -ne $null)" Gray
+    Write-Log "Chocolatey available: $($null -ne $chocoAvailable)" Gray
     Write-Log "WinGet available: $wingetAvailable" Gray
-    
+
     foreach ($package in $packages) {
         Write-Log "Processing package: $($package.Name)" White
-        
+
         $installed = $false
-        
+
         # Try Chocolatey first (primary package manager)
         if ($chocoAvailable -and $package.chocoId) {
             $installed = Install-ChocoPackage -PackageId $package.chocoId -PackageName $package.Name
         }
-        
+
         # Fallback to WinGet if Chocolatey failed or is not available
         if (-not $installed -and $wingetAvailable -and $package.wingetId) {
             Write-Log "Falling back to WinGet for $($package.Name)" Yellow
             $installed = Install-WinGetPackage -PackageId $package.wingetId -PackageName $package.Name
         }
-        
+
         if (-not $installed) {
             Write-Log "Failed to install $($package.Name) with any package manager" Red
         }
-        
+
         Write-Host "" # Empty line for readability
+    }
+}
+
+# Load configuration profile
+function Get-ConfigurationProfile {
+    param([string]$ProfileName)
+
+    $configPath = Join-Path $PSScriptRoot "configs\$ProfileName.json"
+
+    if (-not (Test-Path $configPath)) {
+        Write-Log "Configuration profile not found: $configPath" Red
+        Write-Log "Falling back to minimal profile" Yellow
+        $configPath = Join-Path $PSScriptRoot "configs\minimal.json"
+    }
+
+    try {
+        $config = Get-Content $configPath | ConvertFrom-Json
+        Write-Log "Loaded configuration profile: $($config.name)" Green
+        return $config
+    } catch {
+        Write-Log "Failed to load configuration profile: $($_.Exception.Message)" Red
+        return $null
     }
 }
 
@@ -175,6 +167,25 @@ function Setup-PowerShellProfile {
 # Main execution
 Write-Log "Starting Windows Laptop Automation Setup" Cyan
 Write-Log "Script location: $PSScriptRoot" Gray
+Write-Log "Configuration profile: $ConfigProfile" Gray
+
+# Load configuration
+$config = Get-ConfigurationProfile -ProfileName $ConfigProfile
+if (-not $config) {
+    Write-Log "Failed to load configuration. Exiting." Red
+    exit 1
+}
+
+# Initialize progress tracker
+$progressTracker = New-ProgressTracker -TotalSteps 4
+
+# Detect hardware
+$progressTracker.StartOperation("Detecting hardware specifications")
+$systemSpecs = Get-SystemSpecs
+Write-Log "System: $($systemSpecs.Manufacturer) $($systemSpecs.Model)" Gray
+Write-Log "Memory: $($systemSpecs.TotalMemoryGB) GB" Gray
+Write-Log "Processor: $($systemSpecs.ProcessorName)" Gray
+$progressTracker.CompleteOperation()
 
 # Install packages
 if (-not $SkipPackages) {
@@ -183,15 +194,18 @@ if (-not $SkipPackages) {
         Write-Log "Package installation requires administrator privileges. Please run as administrator or use -SkipPackages." Red
         exit 1
     }
-    
+
+    $progressTracker.StartOperation("Installing package managers and packages")
+
     Write-Log "Installing package managers and packages..." Cyan
-    
+
     # Ensure Chocolatey is installed
     $chocoInstalled = Install-Chocolatey
-    
+
     if ($chocoInstalled) {
-        Install-Packages
-        
+        $packageListPath = Join-Path $PSScriptRoot "packageList.json"
+        Install-Packages -PackageListPath $packageListPath
+
         # Refresh environment variables after package installation
         Write-Log "Refreshing environment variables..." Cyan
         $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
@@ -199,35 +213,43 @@ if (-not $SkipPackages) {
         Write-Log "Cannot proceed without a package manager" Red
         exit 1
     }
+    $progressTracker.CompleteOperation()
 } else {
-    Write-Log "Skipping package installation" Yellow 
+    Write-Log "Skipping package installation" Yellow
+    $progressTracker.CurrentStep++ # Skip this step
 }
 
-# Run office.ps1 if it exists
-$officeScriptPath = Join-Path $PSScriptRoot "office.ps1"    
-if (Test-Path $officeScriptPath ) {
-    # Test if not wanted with the -SkipOffice switch
-    if ($SkipOffice) {
-        Write-Log "Skipping Office setup script as requested" Yellow
-        return
-    }
+# Run office.ps1 if it exists and not skipped
+$officeScriptPath = Join-Path $PSScriptRoot "office.ps1"
+if (Test-Path $officeScriptPath -and -not $SkipOffice) {
+    $progressTracker.StartOperation("Running Office setup script")
     Write-Log "Running Office setup script: $officeScriptPath" Cyan
     try {
         . $officeScriptPath
     } catch {
         Write-Log "Failed to run Office setup script: $($_.Exception.Message)" Red
     }
+    $progressTracker.CompleteOperation()
 } else {
-    Write-Log "Office setup script not found: $officeScriptPath" Yellow
+    if ($SkipOffice) {
+        Write-Log "Skipping Office setup script as requested" Yellow
+    } else {
+        Write-Log "Office setup script not found: $officeScriptPath" Yellow
+    }
+    $progressTracker.CurrentStep++ # Skip this step
 }
 
 # Setup PowerShell profile
 if (-not $SkipProfile) {
+    $progressTracker.StartOperation("Setting up PowerShell profile")
     Write-Log "Setting up PowerShell profile..." Cyan
     Setup-PowerShellProfile
+    $progressTracker.CompleteOperation()
 } else {
     Write-Log "Skipping PowerShell profile setup" Yellow
+    $progressTracker.CurrentStep++ # Skip this step
 }
 
+$progressTracker.WriteSummary()
 Write-Log "Setup completed successfully!" Green
 Write-Log "Please restart your PowerShell session to apply profile changes." Cyan

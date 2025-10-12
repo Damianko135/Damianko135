@@ -1,0 +1,8 @@
+{
+  "name": "Custom",
+  "description": "Custom configuration - modify as needed",
+  "packages": [],
+  "includeOffice": false,
+  "includeWSL": false,
+  "skipHeavyPackages": false
+}

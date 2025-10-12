@@ -1,0 +1,7 @@
+{
+  "name": "Minimal",
+  "description": "Essential tools only",
+  "packages": ["git", "vscode", "powershell-core"],
+  "skipOffice": true,
+  "skipHeavyPackages": true
+}
