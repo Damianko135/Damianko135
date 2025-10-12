@@ -164,110 +164,75 @@ Write-Log "Bootstrap: Windows Laptop Automation Setup" Cyan
 Write-Log "Repository: $repoOwner/$repoName" Gray
 
 try {
-    # Get latest release information
-    Write-Log "Fetching latest release information..." Cyan
-    $latestRelease = Invoke-RestMethod -Uri $apiUrl -Headers @{ "User-Agent" = "PowerShell-Bootstrap" }
-    
-    $tagName = $latestRelease.tag_name
-    $releaseName = $latestRelease.name
-    Write-Log "Latest release: $releaseName ($tagName)" Green
-    
-    # Find the Windows automation zip asset
-    $windowsAsset = $latestRelease.assets | Where-Object { $_.name -like "*Bootstrap*" }
-    
-    if (-not $windowsAsset) {
-        # Fallback to any zip asset
-        $windowsAsset = $latestRelease.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -First 1
-    }
-    
-    if (-not $windowsAsset) {
-        Write-Log "No suitable zip asset found in release. Available assets:" Yellow
-        $latestRelease.assets | ForEach-Object { Write-Log "  - $($_.name)" Gray }
-        throw "No zip asset found in the latest release"
-    }
-    
-    # Use the release asset download URL
-    $downloadUrl = $windowsAsset.browser_download_url
-    $zipFileName = $windowsAsset.name
-    $zipFilePath = Join-Path $DownloadPath $zipFileName
+    # Download files directly from GitHub repository main branch
+    Write-Log "Downloading automation files from GitHub repository..." Cyan
 
-    Write-Log "Selected asset: $($windowsAsset.name)" Green
-
-    # Check for checksum file
-    $expectedHash = $null
-    if (-not $SkipChecksumVerification) {
-        $checksumAsset = $latestRelease.assets | Where-Object { $_.name -eq "$zipFileName.sha256" -or $_.name -eq "$zipFileName.SHA256" }
-        if ($checksumAsset) {
-            Write-Log "Found checksum file: $($checksumAsset.name)" Green
-            Write-SecurityAuditLog -Event "ChecksumFileFound" -Details "Checksum file located: $($checksumAsset.name)" -Severity "Info"
-            $checksumUrl = $checksumAsset.browser_download_url
-            $checksumPath = Join-Path $DownloadPath "$zipFileName.sha256"
-
-            if (Invoke-SecureWebRequest -Uri $checksumUrl -OutFile $checksumPath) {
-                $expectedHash = Get-Content $checksumPath | Select-Object -First 1
-                Write-Log "Expected SHA256: $expectedHash" Gray
-            }
-        } else {
-            Write-Log "No checksum file found, skipping integrity verification" Yellow
-            Write-SecurityAuditLog -Event "ChecksumFileMissing" -Details "No checksum file found for $zipFileName" -Severity "Warning"
-        }
-    }
-
-    # Download with security validation
-    Write-Log "Downloading release from: $downloadUrl" Cyan
-    Write-Log "Saving to: $zipFilePath" Gray
-
-    # Remove existing zip if it exists
-    if (Test-Path $zipFilePath) {
-        Write-Log "Removing existing zip file..." Yellow
-        Remove-Item $zipFilePath -Force
-    }
-
-    # Validate certificate before download
-    if (-not (Test-CertificateValidation -Uri $downloadUrl)) {
-        Write-SecurityAuditLog -Event "CertificateValidationFailed" -Details "Certificate validation failed for $downloadUrl" -Severity "Error"
-        throw "Certificate validation failed for download URL"
-    }
-
-    Write-SecurityAuditLog -Event "DownloadStarted" -Details "Starting download from $downloadUrl" -Severity "Info"
-
-    # Use secure download function
-    $downloadSuccess = Invoke-SecureWebRequest -Uri $downloadUrl -OutFile $zipFilePath -ExpectedHash $expectedHash
-    if (-not $downloadSuccess) {
-        Write-SecurityAuditLog -Event "DownloadFailed" -Details "Download or verification failed for $zipFilePath" -Severity "Error"
-        throw "Failed to download or verify the release zip file"
-    }
-
-    Write-SecurityAuditLog -Event "DownloadCompleted" -Details "Successfully downloaded and verified $zipFilePath" -Severity "Info"
-    
-    if (-not (Test-Path $zipFilePath)) {
-        throw "Failed to download the release zip file"
-    }
-    
-    Write-Log "Download completed successfully" Green
-    
-    # Extract the zip file
     $extractPath = Join-Path $DownloadPath "laptop-automation-temp"
-    
+
     # Remove existing extraction directory
     if (Test-Path $extractPath) {
         Write-Log "Removing existing extraction directory..." Yellow
         Remove-Item $extractPath -Recurse -Force
     }
-    
-    Write-Log "Extracting to: $extractPath" Cyan
-    
-    # Use Expand-Archive with PowerShell 5.1+ compatibility
-    if (Get-Command Expand-Archive -ErrorAction SilentlyContinue) {
-        Expand-Archive -Path $zipFilePath -DestinationPath $extractPath -Force
-    } else {
-        # Fallback for very old PowerShell versions
-        Write-Log "Expand-Archive not available, using .NET extraction..." Yellow
-        if (-not ("System.IO.Compression.ZipFile" -as [type])) {
-            Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+    New-Item -ItemType Directory -Path $extractPath -Force | Out-Null
+
+    # List of files to download
+    $filesToDownload = @(
+        "setup.ps1",
+        "modules/BackupRestore.psm1",
+        "modules/ComprehensiveLogging.psm1",
+        "modules/ContainerSupport.psm1",
+        "modules/HardwareDetector.psm1",
+        "modules/InteractiveMode.psm1",
+        "modules/PackageInstaller.psm1",
+        "modules/PluginSystem.psm1",
+        "modules/PostInstallSummary.psm1",
+        "modules/ProgressTracker.psm1",
+        "modules/SecurityValidator.psm1",
+        "modules/Windows11Optimizer.psm1",
+        "modules/ComplianceSecurity.psm1",
+        "modules/UpdateManagement.psm1",
+        "modules/InventoryManagement.psm1",
+        "configs/custom.json",
+        "configs/developer.json",
+        "configs/gaming.json",
+        "configs/minimal.json",
+        "plugins/DevelopmentTools.json",
+        "plugins/DevelopmentTools.ps1",
+        "plugins/README.md",
+        "packageList.json",
+        "office-configuration.xml",
+        "office.ps1",
+        "profile-content.ps1",
+        "Test-Automation.ps1"
+    )
+
+    foreach ($file in $filesToDownload) {
+        $githubUrl = "https://raw.githubusercontent.com/$repoOwner/$repoName/main/laptopAutomation/windows/$file"
+        $localPath = Join-Path $extractPath $file
+
+        # Create directory if it doesn't exist
+        $localDir = Split-Path $localPath -Parent
+        if (-not (Test-Path $localDir)) {
+            New-Item -ItemType Directory -Path $localDir -Force | Out-Null
         }
-        [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFilePath, $extractPath)
+
+        Write-Log "Downloading $file..." Gray
+
+        # Validate certificate before download
+        if (-not (Test-CertificateValidation -Uri $githubUrl)) {
+            Write-SecurityAuditLog -Event "CertificateValidationFailed" -Details "Certificate validation failed for $githubUrl" -Severity "Error"
+            throw "Certificate validation failed for $githubUrl"
+        }
+
+        # Download the file
+        if (-not (Invoke-SecureWebRequest -Uri $githubUrl -OutFile $localPath)) {
+            throw "Failed to download $file"
+        }
     }
+
+    Write-Log "All files downloaded successfully" Green
     
     # Find the setup script (look for it in the extracted contents)
     Write-Log "Searching for setup.ps1..." Cyan
@@ -316,13 +281,8 @@ try {
 } finally {
     # Cleanup downloaded files
     try {
-        if (Test-Path $zipFilePath) {
-            Write-Log "Cleaning up downloaded zip file..." Gray
-            Remove-Item $zipFilePath -Force
-        }
-        
         if (Test-Path $extractPath) {
-            Write-Log "Cleaning up extracted files..." Gray
+            Write-Log "Cleaning up downloaded files..." Gray
             Remove-Item $extractPath -Recurse -Force
         }
     } catch {
