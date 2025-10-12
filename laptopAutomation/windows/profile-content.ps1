@@ -1,65 +1,134 @@
-# PowerShell Profile setup by Damian Korver
+# ==================================================
+# Damian Korver's PowerShell Profile
+# Clean, Functional, and Cross-Version Compatible
+# ==================================================
 
-# Enable Windows Console Colors
+# ---- Console Setup ----
 if ($Host.Name -eq 'ConsoleHost') {
     $Host.UI.RawUI.ForegroundColor = 'White'
     $Host.UI.RawUI.BackgroundColor = 'Black'
     Clear-Host
 }
 
-# Git Aliases (using functions for proper command execution)
-function gs { git status $args }
-function gb { git branch $args }
-function gl { git log $args }
-function gc { git commit $args }
-function gp { git push $args }
-function gco { git checkout $args }
+# ---- Basic PSReadLine Configuration ----
+if (Get-Module -ListAvailable -Name PSReadLine) {
+    Import-Module PSReadLine | Out-Null
 
-# General Aliases
+    Set-PSReadLineOption -EditMode Windows
+    Set-PSReadLineOption -HistorySearchCursorMovesToEnd
+    Set-PSReadLineOption -HistorySaveStyle SaveAtExit
+
+    if ($PSVersionTable.PSVersion.Major -ge 7) {
+        try {
+            Set-PSReadLineOption -PredictionSource History
+        } catch {
+            Write-Verbose "PredictionSource not supported on this PS version."
+        }
+    }
+}
+
+# ---- Encoding & History ----
+$MaximumHistoryCount = 5000
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+# ---- Aliases ----
 Set-Alias ll Get-ChildItem
+Set-Alias la "Get-ChildItem -Force -Hidden"
+Set-Alias grep Select-String
 
-# Network helpers
-function myip { Invoke-RestMethod http://ipinfo.io/json | Select-Object -ExpandProperty ip }
-function flushdns { ipconfig /flushdns }
+# Git command aliases (function-based for argument handling)
+function gs { git status @args }
+function gb { git branch @args }
+function gl { git log @args }
+function gc { git commit @args }
+function gp { git push @args }
+function gco { git checkout @args }
 
-# Import posh-git module if installed
-if (Get-Module -ListAvailable posh-git) {
-    Import-Module posh-git
+# ---- Network Helpers ----
+function IP {
+    try {
+        (Invoke-RestMethod 'https://ipinfo.io/json').ip
+    } catch {
+        Write-Error "Unable to retrieve IP address."
+    }
 }
 
-# Custom prompt
-function prompt {
-    "$(Get-Location)> "
+function Flush { ipconfig /flushdns }
+
+# ---- Utility Functions ----
+function Reprof {
+    Write-Host "Reloading PowerShell profile..." -ForegroundColor Cyan
+    . $PROFILE
 }
 
-function go-init {
-    param(
-        [string]$Remote = "origin"
-    )
+function Up {
+    param([int]$Levels = 1)
+    $Path = (Get-Location).Path
+    for ($i = 0; $i -lt $Levels; $i++) {
+        $Path = Split-Path $Path
+    }
+    Set-Location $Path
+}
+
+function Get-ExternalIP {
+    try {
+        (Invoke-RestMethod 'https://api.ipify.org?format=text').Trim()
+    } catch {
+        Write-Error "Unable to retrieve external IP."
+    }
+}
+
+# ---- Go Helper ----
+function ginit {
+    param([string]$Remote = "origin")
 
     try {
         $url = git remote get-url $Remote 2>$null
-    }
-    catch {
-        Write-Error "No such remote: $Remote"
+        if (-not $url) { throw "No such remote: $Remote" }
+    } catch {
+        Write-Error $_
         return
     }
 
-    # Normalize URL: handle both https and SSH
-    if ($url -match '^https://') {
-        $path = $url -replace '^https://', '' -replace '\.git$', ''
-    }
-    elseif ($url -match '^git@') {
-        $path = $url -replace '^git@', '' -replace ':', '/' -replace '\.git$', ''
-    }
-    else {
-        Write-Error "Unsupported remote URL format: $url"
-        return
+    # Normalize URL (handles HTTPS and SSH)
+    switch -Regex ($url) {
+        '^https://' { $path = $url -replace '^https://', '' -replace '\.git$', '' }
+        '^git@'     { $path = $url -replace '^git@', '' -replace ':', '/' -replace '\.git$', '' }
+        default     { Write-Error "Unsupported remote URL format: $url"; return }
     }
 
     go mod init $path
 }
 
+# ---- Git Branch for Prompt ----
+function Get-GitBranch {
+    if (Test-Path .git) {
+        git rev-parse --abbrev-ref HEAD 2>$null
+    }
+}
 
+# ---- Custom Prompt ----
+$env:PROMPT_SYMBOL = "λ"  # Proper lambda symbol
 
-Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
+function Prompt {
+    $Cwd = (Get-Location).Path
+    $Branch = Get-GitBranch
+    $Prompt = "$($env:PROMPT_SYMBOL) $Cwd"
+    if ($Branch) { $Prompt += " [$Branch]" }
+    return "$Prompt "
+}
+
+# ---- Modules ----
+# posh-git (if installed)
+if (Get-Module -ListAvailable posh-git) {
+    Import-Module posh-git | Out-Null
+}
+
+# Chocolatey Tab Completion (if installed)
+$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+if (Test-Path $ChocolateyProfile) {
+    Import-Module $ChocolateyProfile | Out-Null
+}
+
+# ---- Startup Message ----
+Write-Host "PowerShell Ready (v$($PSVersionTable.PSVersion.ToString()))." -ForegroundColor Green
