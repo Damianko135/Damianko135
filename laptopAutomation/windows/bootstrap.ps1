@@ -17,7 +17,12 @@ param (
     [switch] $SkipProfile,
     [switch] $Force,
     [string] $DownloadPath = $env:TEMP,
-    [switch] $SkipChecksumVerification
+    [switch] $SkipChecksumVerification,
+    [switch] $EnableUpdateManagement,
+    [switch] $SkipWindowsUpdates,
+    [switch] $SkipPackageUpdates,
+    [switch] $SkipStoreUpdates,
+    [switch] $RebootIfRequired
 )
 
 Set-StrictMode -Version Latest
@@ -284,6 +289,11 @@ try {
     if ($SkipPackages) { $arguments += "-SkipPackages" }
     if ($SkipProfile) { $arguments += "-SkipProfile" }
     if ($Force) { $arguments += "-Force" }
+    if ($EnableUpdateManagement) { $arguments += "-EnableUpdateManagement" }
+    if ($SkipWindowsUpdates) { $arguments += "-SkipWindowsUpdates" }
+    if ($SkipPackageUpdates) { $arguments += "-SkipPackageUpdates" }
+    if ($SkipStoreUpdates) { $arguments += "-SkipStoreUpdates" }
+    if ($RebootIfRequired) { $arguments += "-RebootIfRequired" }
     
     # Run the setup script
         if ($arguments.Count -gt 0) {
@@ -302,7 +312,6 @@ try {
         Write-Log "Setup script failed to complete successfully." Red
         exit 1
     }
-    
 } catch {
     Write-Log "Bootstrap failed: $($_.Exception.Message)" Red
     Write-Log "Error details: $($_.ScriptStackTrace)" Red

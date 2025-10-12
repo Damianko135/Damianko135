@@ -14,7 +14,12 @@ param (
     [switch] $RestrictedExecution,
     [switch] $Interactive,
     [switch] $TestInSandbox,
-    [switch] $WhatIf
+    [switch] $WhatIf,
+    [switch] $EnableUpdateManagement,
+    [switch] $SkipWindowsUpdates,
+    [switch] $SkipPackageUpdates,
+    [switch] $SkipStoreUpdates,
+    [switch] $RebootIfRequired
 )
 
 # DEBUG: Script started
@@ -36,6 +41,9 @@ Import-Module (Join-Path $modulesPath "PluginSystem.psm1")
 Import-Module (Join-Path $modulesPath "ContainerSupport.psm1")
 Import-Module (Join-Path $modulesPath "ComprehensiveLogging.psm1")
 Import-Module (Join-Path $modulesPath "PostInstallSummary.psm1")
+Import-Module (Join-Path $modulesPath "ComplianceSecurity.psm1")
+Import-Module (Join-Path $modulesPath "UpdateManagement.psm1")
+Import-Module (Join-Path $modulesPath "InventoryManagement.psm1")
 
 # Initialize comprehensive logging
 Initialize-Logging -Level "INFO" -ConsoleOutput -FileOutput -StructuredOutput
@@ -384,6 +392,94 @@ if ($windowsVersion.IsWindows11) {
 } else {
     # $progressTracker.CurrentStep++ # Skip Windows 11 optimizations
 }
+
+# Security and Compliance
+# $progressTracker.StartOperation("Running security and compliance checks")
+Write-InfoLog "Running security baseline assessment..." -Category "Security"
+
+if ($WhatIf) {
+    Write-WarnLog "DRY RUN: Would run security baseline assessment" -Category "Security"
+    Write-WarnLog "DRY RUN: Would check compliance status" -Category "Security"
+    Write-WarnLog "DRY RUN: Would apply security hardening" -Category "Security"
+} else {
+    # Run security baseline assessment
+    $securityResults = Test-SecurityBaseline
+    Write-InfoLog "Security assessment completed: $($securityResults.Passed.Count) passed, $($securityResults.Failed.Count) failed, $($securityResults.Warnings.Count) warnings" -Category "Security"
+
+    # Run compliance check
+    $complianceResults = Test-ComplianceStatus
+    Write-InfoLog "Compliance check completed: $($complianceResults.Score)% score ($($complianceResults.PassedChecks)/$($complianceResults.TotalChecks) checks passed)" -Category "Security"
+
+    # Export compliance report
+    $reportPath = Export-ComplianceReport -ComplianceResults $complianceResults
+    if ($reportPath) {
+        Add-ComponentConfiguration -ComponentName "Compliance Report" -Description "Security and compliance assessment report generated" -FilesModified @($reportPath) -Category "Security"
+    }
+
+    # Apply security hardening
+    Set-SecurityHardening
+
+    Add-ComponentConfiguration -ComponentName "Security Hardening" -Description "Applied security hardening measures and compliance checks" -Category "Security"
+}
+# $progressTracker.CompleteOperation()
+
+# Update Management
+if ($EnableUpdateManagement) {
+    # $progressTracker.StartOperation("Running update management")
+    Write-InfoLog "Running comprehensive system updates..." -Category "Updates"
+
+    if ($WhatIf) {
+        Write-WarnLog "DRY RUN: Would install Windows updates" -Category "Updates"
+        Write-WarnLog "DRY RUN: Would update Chocolatey packages" -Category "Updates"
+        Write-WarnLog "DRY RUN: Would update WinGet packages" -Category "Updates"
+        Write-WarnLog "DRY RUN: Would update Microsoft Store apps" -Category "Updates"
+    } else {
+        $updateResults = Invoke-SystemUpdate -SkipWindowsUpdates:$SkipWindowsUpdates -SkipPackageUpdates:$SkipPackageUpdates -SkipStoreUpdates:$SkipStoreUpdates -RebootIfRequired:$RebootIfRequired
+
+        if ($updateResults.WindowsUpdates) {
+            Add-ComponentConfiguration -ComponentName "Windows Updates" -Description "Windows updates installed successfully" -Category "Updates"
+        }
+        if ($updateResults.ChocolateyUpdates) {
+            Add-ComponentConfiguration -ComponentName "Chocolatey Updates" -Description "Chocolatey packages updated successfully" -Category "Updates"
+        }
+        if ($updateResults.WinGetUpdates) {
+            Add-ComponentConfiguration -ComponentName "WinGet Updates" -Description "WinGet packages updated successfully" -Category "Updates"
+        }
+        if ($updateResults.StoreUpdates) {
+            Add-ComponentConfiguration -ComponentName "Store Updates" -Description "Microsoft Store apps updated successfully" -Category "Updates"
+        }
+
+        if ($updateResults.RebootRequired) {
+            Set-RestartRequired -Reason "System updates require restart"
+        }
+    }
+    # $progressTracker.CompleteOperation()
+} else {
+    Write-DebugLog "Update management not enabled" -Category "Updates"
+    # $progressTracker.CurrentStep++ # Skip update management
+}
+
+# Inventory Collection
+# $progressTracker.StartOperation("Collecting system inventory")
+Write-InfoLog "Collecting system inventory..." -Category "Inventory"
+
+if ($WhatIf) {
+    Write-WarnLog "DRY RUN: Would collect system inventory" -Category "Inventory"
+    Write-WarnLog "DRY RUN: Would export inventory report" -Category "Inventory"
+} else {
+    $inventory = Get-SystemInventory
+    if ($inventory) {
+        # Export inventory report
+        $inventoryPath = Export-InventoryReport -Inventory $inventory
+        if ($inventoryPath) {
+            Add-ComponentConfiguration -ComponentName "System Inventory" -Description "Comprehensive system inventory collected and exported" -FilesModified @($inventoryPath) -Category "Inventory"
+        }
+
+        # Save inventory for future comparisons
+        Save-Inventory -Inventory $inventory
+    }
+}
+# $progressTracker.CompleteOperation()
 
 # Install packages
 if (-not $SkipPackages) {
