@@ -296,15 +296,12 @@ try {
     if ($RebootIfRequired) { $arguments += "-RebootIfRequired" }
     
     # Run the setup script
-        if ($arguments.Count -gt 0) {
-            & $setupScriptPath @arguments
-        } else {
-            & $setupScriptPath
-        }
-        $setupSucceeded = $?
-    } finally {
-        Pop-Location
+    if ($arguments.Count -gt 0) {
+        & $setupScriptPath @arguments
+    } else {
+        & $setupScriptPath
     }
+    $setupSucceeded = $?
     
     if ($setupSucceeded) {
         Write-Log "Setup completed successfully!" Green

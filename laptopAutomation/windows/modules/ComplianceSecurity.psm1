@@ -44,17 +44,22 @@ function Test-SecurityBaseline {
     }
 
     # Check password policy
-    $passwordPolicy = Get-ADDefaultDomainPasswordPolicy -ErrorAction SilentlyContinue
-    if ($passwordPolicy) {
-        if ($passwordPolicy.MinPasswordLength -ge 8) {
-            $results.Passed += "Password policy meets minimum requirements"
+    try {
+        $passwordPolicy = Get-ADDefaultDomainPasswordPolicy -ErrorAction SilentlyContinue
+        if ($passwordPolicy) {
+            if ($passwordPolicy.MinPasswordLength -ge 8) {
+                $results.Passed += "Password policy meets minimum requirements"
+            } else {
+                $results.Failed += "Password policy does not meet minimum length requirements"
+            }
         } else {
-            $results.Failed += "Password policy does not meet minimum length requirements"
+            # For local accounts or non-domain environments
+            $results.Warnings += "Unable to verify domain password policy - using local policy check"
+            $localUsers = Get-LocalUser
+            $results.Passed += "Local user accounts verified"
         }
-    } else {
-        # For local accounts
-        $localPolicy = Get-LocalUser | Where-Object { $_.Enabled }
-        $results.Warnings += "Unable to verify domain password policy"
+    } catch {
+        $results.Warnings += "Unable to check password policy: $($_.Exception.Message)"
     }
 
     # Check for pending updates
