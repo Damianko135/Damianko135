@@ -108,7 +108,7 @@ function Get-GitBranch {
 }
 
 # ---- Custom Prompt ----
-$env:PROMPT_SYMBOL = "λ"  # Proper lambda symbol
+$env:PROMPT_SYMBOL = "PS"  # PowerShell symbol
 
 function Prompt {
     $Cwd = (Get-Location).Path
@@ -131,4 +131,4 @@ if (Test-Path $ChocolateyProfile) {
 }
 
 # ---- Startup Message ----
-Write-Host "PowerShell Ready (v$($PSVersionTable.PSVersion.ToString()))." -ForegroundColor Green
+Write-Host "PowerShell Ready (v$($PSVersionTable.PSVersion.Major))." -ForegroundColor Green
