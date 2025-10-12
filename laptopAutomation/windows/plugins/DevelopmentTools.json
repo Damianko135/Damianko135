@@ -1,0 +1,16 @@
+{
+  "name": "DevelopmentTools",
+  "version": "1.0.0",
+  "description": "Installs additional development tools and utilities",
+  "author": "Damian Korver",
+  "dependencies": [],
+  "executionOrder": 100,
+  "enabled": true,
+  "platforms": ["Windows"],
+  "minWindowsVersion": "10.0.19041",
+  "parameters": {
+    "installGitExtensions": true,
+    "installDockerTools": false,
+    "installCloudTools": false
+  }
+}

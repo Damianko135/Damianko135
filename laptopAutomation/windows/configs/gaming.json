@@ -1,13 +1,7 @@
 {
   "name": "Gaming",
   "description": "Gaming-focused setup with essential tools",
-  "packages": [
-    "steam",
-    "discord",
-    "geforce-experience",
-    "git",
-    "vscode"
-  ],
+  "packages": ["steam", "discord", "geforce-experience", "git", "vscode"],
   "includeOffice": false,
   "includeWSL": false,
   "skipHeavyPackages": true

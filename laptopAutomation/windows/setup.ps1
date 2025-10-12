@@ -11,7 +11,8 @@ param (
     [switch] $Force,
     [switch] $SkipOffice,
     [string] $ConfigProfile = "developer",
-    [switch] $RestrictedExecution
+    [switch] $RestrictedExecution,
+    [switch] $Interactive
 )
 
 Set-StrictMode -Version Latest
@@ -25,6 +26,8 @@ Import-Module (Join-Path $modulesPath "SecurityValidator.psm1")
 Import-Module (Join-Path $modulesPath "ProgressTracker.psm1")
 Import-Module (Join-Path $modulesPath "Windows11Optimizer.psm1")
 Import-Module (Join-Path $modulesPath "BackupRestore.psm1")
+Import-Module (Join-Path $modulesPath "InteractiveMode.psm1")
+Import-Module (Join-Path $modulesPath "PluginSystem.psm1")
 
 # Logging function
 function Write-Log {
@@ -189,11 +192,37 @@ if ($RestrictedExecution) {
 }
 
 # Load configuration
-$config = Get-ConfigurationProfile -ProfileName $ConfigProfile
+$config = if ($Interactive) {
+    Write-Log "Interactive mode enabled - loading available packages..." Cyan
+    $availablePackages = Get-AvailablePackages -PackageListPath (Join-Path $PSScriptRoot "packageList.json")
+
+    # Start with developer profile as base
+    $baseConfig = Get-ConfigurationProfile -ProfileName "developer"
+    if (-not $baseConfig) {
+        $baseConfig = @{
+            packages = @()
+            includeOffice = $false
+            includeWSL = $false
+            skipHeavyPackages = $false
+        }
+    }
+
+    Show-InteractiveMenu -AvailablePackages $availablePackages -CurrentConfig $baseConfig
+} else {
+    Get-ConfigurationProfile -ProfileName $ConfigProfile
+}
+
 if (-not $config) {
     Write-Log "Failed to load configuration. Exiting." Red
     exit 1
 }
+
+# Initialize plugin system
+$progressTracker.StartOperation("Initializing plugin system")
+$pluginsPath = Join-Path $PSScriptRoot "plugins"
+$loadedPlugins = Initialize-PluginSystem -PluginsPath $pluginsPath
+Write-Log "Loaded $($loadedPlugins.Count) plugins" Green
+$progressTracker.CompleteOperation()
 
 # Create backups before making changes
 $progressTracker.StartOperation("Creating system backups")
@@ -205,7 +234,7 @@ Write-Log "Preferences exported to: $preferencesPath" Gray
 $progressTracker.CompleteOperation()
 
 # Initialize progress tracker
-$progressTracker = New-ProgressTracker -TotalSteps 6
+$progressTracker = New-ProgressTracker -TotalSteps 8
 
 # Detect hardware
 $progressTracker.StartOperation("Detecting hardware specifications")
@@ -293,6 +322,24 @@ if (-not $SkipProfile) {
     $progressTracker.CompleteOperation()
 } else {
     Write-Log "Skipping PowerShell profile setup" Yellow
+    $progressTracker.CurrentStep++ # Skip this step
+}
+
+# Execute plugins
+if ($loadedPlugins.Count -gt 0) {
+    $progressTracker.StartOperation("Executing plugins")
+    Write-Log "Executing $($loadedPlugins.Count) plugins..." Cyan
+    foreach ($plugin in $loadedPlugins) {
+        try {
+            Write-Log "Executing plugin: $($plugin.Name)" Cyan
+            Invoke-Plugin -Plugin $plugin -SystemSpecs $systemSpecs -WindowsVersion $windowsVersion -Config $config
+        } catch {
+            Write-Log "Failed to execute plugin $($plugin.Name): $($_.Exception.Message)" Red
+        }
+    }
+    $progressTracker.CompleteOperation()
+} else {
+    Write-Log "No plugins to execute" Gray
     $progressTracker.CurrentStep++ # Skip this step
 }
 
