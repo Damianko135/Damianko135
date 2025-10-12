@@ -31,11 +31,16 @@ function Test-IsLaptop {
 
 function Get-WindowsVersion {
     $os = Get-WmiObject -Class Win32_OperatingSystem
+    $isWindows11 = [int]$os.BuildNumber -ge 22000
+    $isARM64 = $os.OSArchitecture -eq "ARM 64-bit"
+
     return @{
         Caption = $os.Caption
         Version = $os.Version
         BuildNumber = $os.BuildNumber
-        IsWindows11 = [int]$os.BuildNumber -ge 22000
+        IsWindows11 = $isWindows11
+        IsARM64 = $isARM64
+        OSArchitecture = $os.OSArchitecture
     }
 }
 

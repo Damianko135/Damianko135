@@ -10,7 +10,8 @@ param (
     [switch] $SkipProfile,
     [switch] $Force,
     [switch] $SkipOffice,
-    [string] $ConfigProfile = "developer"
+    [string] $ConfigProfile = "developer",
+    [switch] $RestrictedExecution
 )
 
 Set-StrictMode -Version Latest
@@ -22,6 +23,8 @@ Import-Module (Join-Path $modulesPath "PackageInstaller.psm1")
 Import-Module (Join-Path $modulesPath "HardwareDetector.psm1")
 Import-Module (Join-Path $modulesPath "SecurityValidator.psm1")
 Import-Module (Join-Path $modulesPath "ProgressTracker.psm1")
+Import-Module (Join-Path $modulesPath "Windows11Optimizer.psm1")
+Import-Module (Join-Path $modulesPath "BackupRestore.psm1")
 
 # Logging function
 function Write-Log {
@@ -38,7 +41,7 @@ function Test-IsAdmin {
 }
 
 # Setup PowerShell profile
-function Setup-PowerShellProfile {
+function Set-PowerShellProfile {
     $profilePath = $PROFILE
     $profileContentPath = Join-Path $PSScriptRoot "profile-content.ps1"
 
@@ -132,42 +135,58 @@ function Get-ConfigurationProfile {
     }
 }
 
-# Setup PowerShell profile
-function Setup-PowerShellProfile {
-    $profilePath = $PROFILE
-    $profileContentPath = Join-Path $PSScriptRoot "profile-content.ps1"
-    
-    if (-not (Test-Path $profileContentPath)) {
-        Write-Log "Profile content file not found: $profileContentPath" Red
-        return
-    }
-    
-    # Create profile directory if it doesn't exist
-    $profileDir = Split-Path $profilePath
-    if (-not (Test-Path $profileDir)) {
-        Write-Log "Creating profile directory: $profileDir" Cyan
-        New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
-    }
-    
-    try {
-        $profileContent = Get-Content $profileContentPath -Raw
-        
-        if ($Force -or -not (Test-Path $profilePath)) {
-            Write-Log "Creating PowerShell profile: $profilePath" Cyan
-            $profileContent | Set-Content -Path $profilePath -Encoding UTF8
-            Write-Log "PowerShell profile created successfully" Green
-        } else {
-            Write-Log "Profile already exists. Use -Force to overwrite" Yellow
+# Secure credential handling for licensed software
+function Get-SecureCredential {
+    param([string]$CredentialName, [string]$PromptMessage = "Enter credentials")
+
+    $credFile = Join-Path $env:APPDATA "WindowsAutomation\$CredentialName.xml"
+
+    if (Test-Path $credFile) {
+        try {
+            $credential = Import-Clixml -Path $credFile
+            Write-Log "Loaded stored credentials for $CredentialName" Green
+            return $credential
+        } catch {
+            Write-Log "Failed to load stored credentials: $($_.Exception.Message)" Red
         }
-    } catch {
-        Write-Log "Failed to setup PowerShell profile: $($_.Exception.Message)" Red
     }
+
+    Write-Log "Prompting for credentials: $PromptMessage" Yellow
+    $credential = Get-Credential -Message $PromptMessage
+
+    if ($credential) {
+        # Create directory if it doesn't exist
+        $credDir = Split-Path $credFile
+        if (-not (Test-Path $credDir)) {
+            New-Item -ItemType Directory -Path $credDir -Force | Out-Null
+        }
+
+        try {
+            $credential | Export-Clixml -Path $credFile
+            Write-Log "Credentials stored securely for $CredentialName" Green
+        } catch {
+            Write-Log "Failed to store credentials: $($_.Exception.Message)" Red
+        }
+    }
+
+    return $credential
 }
 
 # Main execution
 Write-Log "Starting Windows Laptop Automation Setup" Cyan
 Write-Log "Script location: $PSScriptRoot" Gray
 Write-Log "Configuration profile: $ConfigProfile" Gray
+
+# Handle restricted execution policy
+if ($RestrictedExecution) {
+    Write-Log "Running in restricted execution policy mode" Yellow
+    try {
+        Set-ExecutionPolicy -ExecutionPolicy Restricted -Scope Process -Force
+        Write-Log "Execution policy temporarily set to Restricted" Yellow
+    } catch {
+        Write-Log "Failed to set restricted execution policy: $($_.Exception.Message)" Red
+    }
+}
 
 # Load configuration
 $config = Get-ConfigurationProfile -ProfileName $ConfigProfile
@@ -176,16 +195,43 @@ if (-not $config) {
     exit 1
 }
 
+# Create backups before making changes
+$progressTracker.StartOperation("Creating system backups")
+New-SystemRestorePoint -Description "Before Windows Laptop Automation Setup"
+$backupPath = Backup-UserConfigurations
+$preferencesPath = Export-UserPreferences
+Write-Log "Backup created at: $backupPath" Gray
+Write-Log "Preferences exported to: $preferencesPath" Gray
+$progressTracker.CompleteOperation()
+
 # Initialize progress tracker
-$progressTracker = New-ProgressTracker -TotalSteps 4
+$progressTracker = New-ProgressTracker -TotalSteps 6
 
 # Detect hardware
 $progressTracker.StartOperation("Detecting hardware specifications")
 $systemSpecs = Get-SystemSpecs
+$windowsVersion = Get-WindowsVersion
 Write-Log "System: $($systemSpecs.Manufacturer) $($systemSpecs.Model)" Gray
 Write-Log "Memory: $($systemSpecs.TotalMemoryGB) GB" Gray
 Write-Log "Processor: $($systemSpecs.ProcessorName)" Gray
+Write-Log "OS: $($windowsVersion.Caption) (Build $($windowsVersion.BuildNumber))" Gray
 $progressTracker.CompleteOperation()
+
+# Apply Windows 11 optimizations if applicable
+if ($windowsVersion.IsWindows11) {
+    $progressTracker.StartOperation("Applying Windows 11 optimizations")
+    Enable-Windows11Features
+    Set-Windows11Settings
+    Optimize-WindowsPackageManager
+
+    # Setup WSL2 if configured in profile
+    if ($config.includeWSL) {
+        Install-WSL2Integration
+    }
+    $progressTracker.CompleteOperation()
+} else {
+    $progressTracker.CurrentStep++ # Skip Windows 11 optimizations
+}
 
 # Install packages
 if (-not $SkipPackages) {
@@ -243,7 +289,7 @@ if (Test-Path $officeScriptPath -and -not $SkipOffice) {
 if (-not $SkipProfile) {
     $progressTracker.StartOperation("Setting up PowerShell profile")
     Write-Log "Setting up PowerShell profile..." Cyan
-    Setup-PowerShellProfile
+    Set-PowerShellProfile
     $progressTracker.CompleteOperation()
 } else {
     Write-Log "Skipping PowerShell profile setup" Yellow
