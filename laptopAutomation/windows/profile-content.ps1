@@ -45,14 +45,6 @@ function gp { git push @args }
 function gco { git checkout @args }
 
 # ---- Network Helpers ----
-function IP {
-    try {
-        (Invoke-RestMethod 'https://ipinfo.io/json').ip
-    } catch {
-        Write-Error "Unable to retrieve IP address."
-    }
-}
-
 function Flush { ipconfig /flushdns }
 
 # ---- Utility Functions ----

@@ -23,16 +23,19 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 # Logging function
+# Parameters:
+#   - Message: The log message to display.
+#   - Color: (Optional) The color to use for the message output. Defaults to 'White'.
 function Write-Log {
     param([string]$Message, [ConsoleColor]$Color='White')
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     Write-Host "[$timestamp] $Message" -ForegroundColor $Color
-}
-
-# GitHub repository information
+# Set the GitHub repository owner (username or organization)
 $repoOwner = "Damianko135"
+# Set the GitHub repository name
 $repoName = "Damianko135"
 $apiUrl = "https://api.github.com/repos/$repoOwner/$repoName/releases/latest"
+# NOTE: If the repository owner and name differ, update these variables accordingly.
 
 Write-Log "Bootstrap: Windows Laptop Automation Setup" Cyan
 Write-Log "Repository: $repoOwner/$repoName" Gray
@@ -84,9 +87,13 @@ try {
             Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath -UseBasicParsing
         } else {
             # PowerShell 5.1 method - disable progress bar for performance
+            $oldProgressPreference = $ProgressPreference
             $ProgressPreference = 'SilentlyContinue'
-            Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath -UseBasicParsing
-            $ProgressPreference = 'Continue'
+            try {
+                Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFilePath -UseBasicParsing
+            } finally {
+                $ProgressPreference = $oldProgressPreference
+            }
         }
     } catch {
         # Fallback to WebClient if Invoke-WebRequest fails
@@ -118,16 +125,18 @@ try {
     } else {
         # Fallback for very old PowerShell versions
         Write-Log "Expand-Archive not available, using .NET extraction..." Yellow
-        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        if (-not ("System.IO.Compression.ZipFile" -as [type])) {
+            Add-Type -AssemblyName System.IO.Compression.FileSystem
+        }
         [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFilePath, $extractPath)
     }
     
     # Find the setup script (look for it in the extracted contents)
     Write-Log "Searching for setup.ps1..." Cyan
-    $setupScriptPath = Get-ChildItem $extractPath -Recurse -Name "setup.ps1" | Select-Object -First 1
+    $setupScript = Get-ChildItem $extractPath -Recurse -File -Filter "setup.ps1" | Select-Object -First 1
     
-    if ($setupScriptPath) {
-        $setupScriptPath = Join-Path $extractPath $setupScriptPath
+    if ($setupScript) {
+        $setupScriptPath = $setupScript.FullName
         Write-Log "Found setup script: $setupScriptPath" Green
     } else {
         Write-Log "Setup script not found. Listing extracted contents:" Yellow
@@ -144,27 +153,21 @@ try {
     if ($Force) { $arguments += "-Force" }
     
     # Run the setup script
-    Write-Log "Running setup script with arguments: $($arguments -join ' ')" Cyan
-    Write-Log "Working directory: $(Split-Path $setupScriptPath)" Gray
-    
-    # Change to the script directory and run it
-    Push-Location (Split-Path $setupScriptPath)
-    try {
         if ($arguments.Count -gt 0) {
             & $setupScriptPath @arguments
         } else {
             & $setupScriptPath
         }
-        $setupExitCode = $LASTEXITCODE
+        $setupSucceeded = $?
     } finally {
         Pop-Location
     }
     
-    if ($setupExitCode -eq 0 -or $null -eq $setupExitCode) {
+    if ($setupSucceeded) {
         Write-Log "Setup completed successfully!" Green
     } else {
-        Write-Log "Setup script exited with code: $setupExitCode" Red
-        exit $setupExitCode
+        Write-Log "Setup script failed to complete successfully." Red
+        exit 1
     }
     
 } catch {
