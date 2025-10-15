@@ -18,5 +18,6 @@
   { "Name": "Microsoft Teams", "wingetId": "Microsoft.Teams", "chocoId": "microsoft-teams" },
   { "Name": "Discord", "wingetId": "Discord.Discord", "chocoId": "discord" },
   { "Name": "Steam", "wingetId": "Valve.Steam", "chocoId": "steam" },
-  { "Name": "Go", "wingetId": "GoLang.Go", "chocoId": "go", "command": "go" }
+  { "Name": "Go", "wingetId": "GoLang.Go", "chocoId": "go", "command": "go" },
+  { "Name": "OpenVPN", "wingetId": "OpenVPNTechnologies.OpenVPN", "chocoId": "openvpn" }
 ]
