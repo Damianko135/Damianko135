@@ -3,9 +3,10 @@
 
 # Logging function
 function Write-Log {
-    param([string]$Message, [ConsoleColor]$Color='White')
+    param([string]$Message)
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Write-Host "[$timestamp] $Message" -ForegroundColor $Color
+    $formatted = "[$timestamp] $Message"
+    Write-Information $formatted -InformationAction Continue
 }
 
 $workingDir = "$env:TEMP\OfficeInstall"
@@ -32,7 +33,7 @@ function Test-OfficeInstalled {
 
 # Check if Office is already installed
 if (Test-OfficeInstalled) {
-    Write-Log "Office is already installed. Skipping installation." Yellow
+    Write-Log "Office is already installed. Skipping installation."
     exit 0
 }
 
@@ -43,49 +44,49 @@ if (-Not (Test-Path $workingDir)) {
 
 # Download ODT if not already downloaded
 if (-Not (Test-Path $odtExe)) {
-    Write-Log "Downloading Office Deployment Tool..." Cyan
+    Write-Log "Downloading Office Deployment Tool..."
     Invoke-WebRequest -Uri $odtUrl -OutFile $odtExe
 } else {
-    Write-Log "ODT already downloaded." Green
+    Write-Log "ODT already downloaded."
 }
 
 # Extract ODT if setup.exe not already present
 if (-Not (Test-Path $setupExe)) {
-    Write-Log "Extracting Office Deployment Tool..." Cyan
+    Write-Log "Extracting Office Deployment Tool..."
     try {
         Start-Process -FilePath $odtExe -ArgumentList "/extract:`"$workingDir`" /quiet" -Wait
     } catch {
-        Write-Log "Failed to extract Office Deployment Tool: $($_.Exception.Message)" Red
+        Write-Log "Failed to extract Office Deployment Tool: $($_.Exception.Message)"
         exit 1
     }
 } else {
-    Write-Log "ODT already extracted." Green
+    Write-Log "ODT already extracted."
 }
 
 # Copy config XML
 if (-Not (Test-Path $configSource)) {
-    Write-Log "Missing config file: $configSource" Red
+    Write-Log "Missing config file: $configSource"
     exit 1
 }
 Copy-Item -Path $configSource -Destination $configPath -Force
-Write-Log "Using Office config from: $configSource" Green
+Write-Log "Using Office config from: $configSource"
 
 # Download Office installation files
-Write-Log "Downloading Office installation files (this may take a while)..." Cyan
+Write-Log "Downloading Office installation files (this may take a while)..."
 try {
     Start-Process -FilePath $setupExe -ArgumentList "/download `"$configPath`"" -Wait
 } catch {
-    Write-Log "Failed to download Office installation files: $($_.Exception.Message)" Red
+    Write-Log "Failed to download Office installation files: $($_.Exception.Message)"
     exit 1
 }
 
 # Install Office
-Write-Log "Installing Office..." Cyan
+Write-Log "Installing Office..."
 try {
     Start-Process -FilePath $setupExe -ArgumentList "/configure `"$configPath`"" -Wait
 } catch {
-    Write-Log "Failed to install Office: $($_.Exception.Message)" Red
+    Write-Log "Failed to install Office: $($_.Exception.Message)"
     exit 1
 }
 
-Write-Log "Office installation process finished." Green
+Write-Log "Office installation process finished."

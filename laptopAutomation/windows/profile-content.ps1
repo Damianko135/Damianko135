@@ -49,7 +49,7 @@ function Flush { ipconfig /flushdns }
 
 # ---- Utility Functions ----
 function Reprof {
-    Write-Host "Reloading PowerShell profile..." -ForegroundColor Cyan
+    Write-Information "Reloading PowerShell profile..." -InformationAction Continue
     . $PROFILE
 }
 
@@ -123,4 +123,4 @@ if (Test-Path $ChocolateyProfile) {
 }
 
 # ---- Startup Message ----
-Write-Host "PowerShell Ready (v$($PSVersionTable.PSVersion.Major))." -ForegroundColor Green
+Write-Information "PowerShell Ready (v$($PSVersionTable.PSVersion.Major))." -InformationAction Continue

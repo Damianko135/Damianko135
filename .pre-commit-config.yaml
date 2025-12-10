@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: powershell-psscriptanalyzer
+        name: "PowerShell: PSScriptAnalyzer"
+        entry: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File tools/psscriptanalyzer-hook.ps1
+        language: system
+        files: "\\.(ps1|psm1)$"
+        pass_filenames: true
