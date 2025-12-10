@@ -3,9 +3,9 @@
   { "Name": "PowerToys", "wingetId": "Microsoft.PowerToys", "chocoId": "powertoys" },
   { "Name": "Visual Studio 2022 Community", "wingetId": "Microsoft.VisualStudio.2022.Community", "chocoId": "visualstudio2022community" },
   { "Name": "Visual Studio 2022 Build Tools", "wingetId": "Microsoft.VisualStudio.2022.BuildTools", "chocoId": "visualstudio2022buildtools" },
-  { "Name": ".NET SDK 8", "wingetId": "Microsoft.DotNet.SDK.8", "chocoId": "dotnet-sdk", "command": "dotnet" },
-  { "Name": ".NET Runtime 8", "wingetId": "Microsoft.DotNet.Runtime.8", "chocoId": "dotnet-runtime" },
-  { "Name": ".NET Desktop Runtime 8", "wingetId": "Microsoft.DotNet.DesktopRuntime.8", "chocoId": "dotnet-desktopruntime" },
+  { "Name": ".NET SDK 10", "wingetId": "Microsoft.DotNet.SDK.10", "chocoId": "dotnet-sdk", "command": "dotnet" },
+  { "Name": ".NET Runtime 10", "wingetId": "Microsoft.DotNet.Runtime.10", "chocoId": "dotnet-runtime" },
+  { "Name": ".NET Desktop Runtime 10", "wingetId": "Microsoft.DotNet.DesktopRuntime.10", "chocoId": "dotnet-desktopruntime" },
   { "Name": "Visual Studio Code", "wingetId": "Microsoft.VisualStudioCode", "chocoId": "vscode", "command": "code" },
   { "Name": "7-Zip", "wingetId": "7zip.7zip", "chocoId": "7zip" },
   { "Name": "Mozilla Firefox", "wingetId": "Mozilla.Firefox", "chocoId": "firefox" },
@@ -19,5 +19,6 @@
   { "Name": "Discord", "wingetId": "Discord.Discord", "chocoId": "discord" },
   { "Name": "Steam", "wingetId": "Valve.Steam", "chocoId": "steam" },
   { "Name": "Go", "wingetId": "GoLang.Go", "chocoId": "go", "command": "go" },
+  { "Name": "GoLand", "wingetId": "JetBrains.GoLand", "chocoId": "goland", "command": "goland" },
   { "Name": "OpenVPN", "wingetId": "OpenVPNTechnologies.OpenVPN", "chocoId": "openvpn" }
 ]
